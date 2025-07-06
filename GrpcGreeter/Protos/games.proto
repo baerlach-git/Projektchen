@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcGameService";
+
+service GameService {
+  rpc GetGames (Empty) returns (GameList);
+}
+
+message Empty {}
+
+message Game {
+  int32 id = 1;
+  string name = 2;
+  string releaseDate = 3;
+  string publicher = 4;
+  string devStudio = 5;
+  string platform = 6;
+  string genre = 7;
+  string createdAt = 8;
+  string updatedAt = 9;
+}
+
+message GameList {
+  repeated Game games = 1;
+}
