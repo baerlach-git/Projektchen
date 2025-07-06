@@ -98,8 +98,6 @@ namespace ExtendingBogus
 
       }
 
-
-
     }
   }
 }
