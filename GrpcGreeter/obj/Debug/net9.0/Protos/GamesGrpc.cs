@@ -49,6 +49,10 @@ namespace GrpcGameService {
     static readonly grpc::Marshaller<global::GrpcGameService.Empty> __Marshaller_Empty = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::GrpcGameService.Empty.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::GrpcGameService.GameList> __Marshaller_GameList = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::GrpcGameService.GameList.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::GrpcGameService.GameRatingRequest> __Marshaller_GameRatingRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::GrpcGameService.GameRatingRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::GrpcGameService.GameRatingResponse> __Marshaller_GameRatingResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::GrpcGameService.GameRatingResponse.Parser));
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::GrpcGameService.Empty, global::GrpcGameService.GameList> __Method_GetGames = new grpc::Method<global::GrpcGameService.Empty, global::GrpcGameService.GameList>(
@@ -57,6 +61,14 @@ namespace GrpcGameService {
         "GetGames",
         __Marshaller_Empty,
         __Marshaller_GameList);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::GrpcGameService.GameRatingRequest, global::GrpcGameService.GameRatingResponse> __Method_AddRating = new grpc::Method<global::GrpcGameService.GameRatingRequest, global::GrpcGameService.GameRatingResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "AddRating",
+        __Marshaller_GameRatingRequest,
+        __Marshaller_GameRatingResponse);
 
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
@@ -74,6 +86,12 @@ namespace GrpcGameService {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::GrpcGameService.GameRatingResponse> AddRating(global::GrpcGameService.GameRatingRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
     }
 
     /// <summary>Creates service definition that can be registered with a server</summary>
@@ -82,7 +100,8 @@ namespace GrpcGameService {
     public static grpc::ServerServiceDefinition BindService(GameServiceBase serviceImpl)
     {
       return grpc::ServerServiceDefinition.CreateBuilder()
-          .AddMethod(__Method_GetGames, serviceImpl.GetGames).Build();
+          .AddMethod(__Method_GetGames, serviceImpl.GetGames)
+          .AddMethod(__Method_AddRating, serviceImpl.AddRating).Build();
     }
 
     /// <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
@@ -93,6 +112,7 @@ namespace GrpcGameService {
     public static void BindService(grpc::ServiceBinderBase serviceBinder, GameServiceBase serviceImpl)
     {
       serviceBinder.AddMethod(__Method_GetGames, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::GrpcGameService.Empty, global::GrpcGameService.GameList>(serviceImpl.GetGames));
+      serviceBinder.AddMethod(__Method_AddRating, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::GrpcGameService.GameRatingRequest, global::GrpcGameService.GameRatingResponse>(serviceImpl.AddRating));
     }
 
   }

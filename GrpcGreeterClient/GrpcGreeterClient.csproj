@@ -20,6 +20,8 @@
 
   <ItemGroup>
   <Protobuf Include="Protos\greet.proto" GrpcServices="Client" />
+  <Protobuf Include="Protos\games.proto" GrpcServices="Client" />
+
 </ItemGroup>
 
 <PropertyGroup>

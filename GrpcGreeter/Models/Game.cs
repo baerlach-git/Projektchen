@@ -13,7 +13,9 @@ public class Game
   public string Platform { get; set; }
 
   public string Genre { get; set; }
-  public Timestamp CreatedAt { get; set; }
-  public Timestamp UpdatedAt { get; set; }
+  public DateTime CreatedAt { get; set; }
+  public DateTime UpdatedAt { get; set; }
+
+  public List<GameRating> Ratings { get; set; } = new();
 
 }

@@ -4,6 +4,7 @@ using MySql.Data.MySqlClient; // Or use MySqlConnector.MySqlClient if using MySq
 using System.Data;
 using Bogus;
 using Bogus.DataSets;
+using System.Net.Http.Headers;
 
 namespace ExtendingBogus
 {
@@ -19,44 +20,117 @@ namespace ExtendingBogus
 
     private IDbConnection Connection => new MySqlConnection(_connectionString);
 
-    public async Task<IEnumerable<Game>> GetAllAsync()
+    public async Task<IEnumerable<Game>> GetGamesWithRatingsAsync()
     {
-      var query = "SELECT Id, Name, ReleaseDate, Publisher, DevStudio, Platform, Genre, CreatedAt, UpdatedAt FROM Games";  //probably will need some adaption in the future
+      var query = @"
+        SELECT 
+          g.Id, g.Name, g.ReleaseDate, g.Publisher, g.DevStudio, g.Platform, g.Genre, g.CreatedAt, g.UpdatedAt, 
+          r.Id AS RatingId, r.GameId, r.Ip, r.Rating, r.Comment, r.CreatedAt AS RatingCreatedAt, r.UpdatedAt AS RatingUpdatedAt
+        FROM Games g
+        LEFT JOIN GameRatings r ON g.Id = r.GameId
+        ";
       using var db = Connection;
-      return await db.QueryAsync<Game>(query);
+
+      var GameDict = new Dictionary<int, Game>();
+      //why <Game, GameRating, Game> ?
+      var result = await db.QueryAsync<Game, GameRating, Game>(
+        query,
+        (game, rating) =>
+        {
+          if (!GameDict.TryGetValue(game.Id, out var currentGame))
+          {
+            currentGame = game;
+            GameDict[game.Id] = currentGame;
+            currentGame.Ratings = new List<GameRating>();
+          }
+
+          if (rating != null)
+          {
+            currentGame.Ratings.Add(rating);
+          }
+
+          return currentGame;
+        },
+        splitOn: "RatingId"
+      );
+      return GameDict.Values;
     }
+
+    //TODO rethink if I want to keep this, maybe integrate check for ip in this/ also use this result for checking ip?
+    public async Task<bool> GameExistsAsync(int gameId)
+    {
+      using var db = Connection;
+      var sql = "SELECT COUNT(1) FROM Games WHERE Id = @Id";
+      var result = await db.ExecuteScalarAsync<int>(sql, new { Id = gameId });
+      return result > 0;
+    }
+
+    public async Task<bool> RatingExistsAsync(int gameId, string Ip)
+    {
+      using var db = Connection;
+      var sql = @"
+        SELECT COUNT(1) g.Id, r.gameId, r.Ip 
+        FROM Games g 
+        LEFT JOIN GameRatings r 
+        ON g.Id = r.GameId
+        WHERE g.Id = @Id, r.Ip = @Ip";
+      var result = await db.ExecuteScalarAsync<int>(sql, new { Id = gameId, Ip = Ip });
+      return result > 0;
+
+    }
+
+    public async Task AddRatingAsync(GameRating rating)
+    {
+      using var db = Connection;
+      var sql = @"
+        INSERT INTO GameRatings (GameId, Ip, Rating, Comment)
+        VALUES (@GameId, @Ip, @Rating, @Comment)";
+
+      await db.ExecuteAsync(sql, rating);
+    }
+
+    public async Task UpdateRatingAsync(GameRating rating)
+    {
+      using var db = Connection;
+      var sql = @"
+        UPDATE GameRatings 
+        SET Rating = @Rating, Comment = @Comment
+        WHERE Id = @Id";
+      await db.ExecuteAsync(sql, rating);
+
+    }
+
 
     public async Task SeedDatabaseAsync()
     {
       using var db = Connection;
 
-      // Create table if it doesn't exist
       var createGameTable = @"
-            CREATE TABLE IF NOT EXISTS Games (
-                Id INT AUTO_INCREMENT,
-                Name VARCHAR(100) NOT NULL,
-                ReleaseDate INT NOT NULL,
-                Publisher VARCHAR(100) NOT NULL,
-                DevStudio VARCHAR(100) NOT NULL,
-                Platform VARCHAR(100) NOT NULL,
-                Genre VARCHAR(100) NOT NULL,
-                CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY(Id)
-            );";
+        CREATE TABLE IF NOT EXISTS Games (
+            Id INT AUTO_INCREMENT,
+            Name VARCHAR(100) NOT NULL,
+            ReleaseDate INT NOT NULL,
+            Publisher VARCHAR(100) NOT NULL,
+            DevStudio VARCHAR(100) NOT NULL,
+            Platform VARCHAR(100) NOT NULL,
+            Genre VARCHAR(100) NOT NULL,
+            CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY(Id)
+        );";
 
       var createGameRatingTable = @"
-      CREATE TABLE IF NOT EXISTS GameRatings (
-        Id INT AUTO_INCREMENT PRIMARY KEY,
-        GameId INT NOT NULL,
-        Ip VARCHAR(100) NOT NULL,
-        Rating INT NOT NULL CHECK (Rating >= 1 AND Rating <= 5),
-        Comment VARCHAR(500) NOT NULL,
-        CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        PRIMARY KEY(Id),
-        FOREIGN KEY (GameId) REFERENCES Games(Id)
-      );";
+        CREATE TABLE IF NOT EXISTS GameRatings (
+          Id INT AUTO_INCREMENT,
+          GameId INT NOT NULL,
+          Ip VARCHAR(100) NOT NULL,
+          Rating INT NOT NULL CHECK (Rating >= 1 AND Rating <= 5),
+          Comment VARCHAR(500) NOT NULL,
+          CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          PRIMARY KEY(Id),
+          FOREIGN KEY (GameId) REFERENCES Games(Id)
+        );";
 
       await db.ExecuteAsync(createGameTable);
       await db.ExecuteAsync(createGameRatingTable);
@@ -81,6 +155,7 @@ namespace ExtendingBogus
 
       var gameIds = (await db.QueryAsync<int>("SELECT Id FROM Games")).ToList();
 
+
       var ratingsCount = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM GameRatings");
       if (ratingsCount == 0)
       {
@@ -93,7 +168,7 @@ namespace ExtendingBogus
         var ratings = ratingFaker.Generate(1000);
         var insertRatings = @"
         INSERT INTO GameRatings (GameId, Ip, Rating, Comment) VALUES (@GameId, @Ip, @Rating, @Comment);";
-        await db.ExecuteAsync(insertRatings);
+        await db.ExecuteAsync(insertRatings, ratings);
 
 
       }

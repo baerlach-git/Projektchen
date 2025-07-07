@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddGrpc(options =>
 {
   options.Interceptors.Add<ApiKeyInterceptor>();
-});
+}).AddServiceOptions<GameService>(opt => opt.EnableDetailedErrors = true);
 
 builder.Services.AddSingleton<ExtendingBogus.GameRepository>();
 

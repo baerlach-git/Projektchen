@@ -12,7 +12,7 @@ public class GameRating
 
   public string Comment { get; set; }
 
-  public Timestamp CreatedAt { get; set; }
-  public Timestamp UpdatedAt { get; set; }
+  public DateTime CreatedAt { get; set; }
+  public DateTime UpdatedAt { get; set; }
 
 }

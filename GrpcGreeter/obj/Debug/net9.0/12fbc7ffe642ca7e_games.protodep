@@ -1,2 +1,3 @@
 obj\Debug\net9.0\Protos/Games.cs \
-obj\Debug\net9.0\Protos/GamesGrpc.cs: Protos/games.proto
+obj\Debug\net9.0\Protos/GamesGrpc.cs: C:/Users/jschu/.nuget/packages/grpc.tools/2.64.0/build/native/include/google/protobuf/timestamp.proto\
+ Protos/games.proto
