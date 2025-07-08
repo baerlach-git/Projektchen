@@ -49,6 +49,10 @@ namespace GrpcGameService {
     static readonly grpc::Marshaller<global::GrpcGameService.Empty> __Marshaller_Empty = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::GrpcGameService.Empty.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::GrpcGameService.GameList> __Marshaller_GameList = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::GrpcGameService.GameList.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::GrpcGameService.GameRatingRequest> __Marshaller_GameRatingRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::GrpcGameService.GameRatingRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::GrpcGameService.GameRatingResponse> __Marshaller_GameRatingResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::GrpcGameService.GameRatingResponse.Parser));
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::GrpcGameService.Empty, global::GrpcGameService.GameList> __Method_GetGames = new grpc::Method<global::GrpcGameService.Empty, global::GrpcGameService.GameList>(
@@ -57,6 +61,14 @@ namespace GrpcGameService {
         "GetGames",
         __Marshaller_Empty,
         __Marshaller_GameList);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::GrpcGameService.GameRatingRequest, global::GrpcGameService.GameRatingResponse> __Method_AddRating = new grpc::Method<global::GrpcGameService.GameRatingRequest, global::GrpcGameService.GameRatingResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "AddRating",
+        __Marshaller_GameRatingRequest,
+        __Marshaller_GameRatingResponse);
 
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
@@ -110,6 +122,26 @@ namespace GrpcGameService {
       public virtual grpc::AsyncUnaryCall<global::GrpcGameService.GameList> GetGamesAsync(global::GrpcGameService.Empty request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_GetGames, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::GrpcGameService.GameRatingResponse AddRating(global::GrpcGameService.GameRatingRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return AddRating(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::GrpcGameService.GameRatingResponse AddRating(global::GrpcGameService.GameRatingRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_AddRating, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::GrpcGameService.GameRatingResponse> AddRatingAsync(global::GrpcGameService.GameRatingRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return AddRatingAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::GrpcGameService.GameRatingResponse> AddRatingAsync(global::GrpcGameService.GameRatingRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_AddRating, null, options, request);
       }
       /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]

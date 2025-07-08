@@ -6,7 +6,7 @@ option csharp_namespace = "GrpcGameService";
 
 service GameService {
   rpc GetGames (Empty) returns (GameList);
-  rpc AddRating (GameRatingRequest) returns (GameRatingResponse)
+  rpc AddRating (GameRatingRequest) returns (GameRatingResponse);
 }
 
 message GameRatingRequest {

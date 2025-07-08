@@ -31,6 +31,9 @@ Console.WriteLine("these are our Games:");
 Console.WriteLine("sry, there are too many games to print them all out");
 //Console.Write(gamesReply.Games);
 
+var ratingReply = await gamesClient.AddRatingAsync(new GameRatingRequest { GameId = 1, Ip = "5.61.144.202", Rating = 5, Comment = "" }, headers);
+Console.WriteLine("Ratingreply:");
+Console.WriteLine(ratingReply.Message);
 
 
 

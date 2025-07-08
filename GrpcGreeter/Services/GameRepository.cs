@@ -69,11 +69,11 @@ namespace ExtendingBogus
     {
       using var db = Connection;
       var sql = @"
-        SELECT COUNT(1) g.Id, r.gameId, r.Ip 
+        SELECT COUNT(*) 
         FROM Games g 
         LEFT JOIN GameRatings r 
         ON g.Id = r.GameId
-        WHERE g.Id = @Id, r.Ip = @Ip";
+        WHERE g.Id = @Id AND r.Ip = @Ip";
       var result = await db.ExecuteScalarAsync<int>(sql, new { Id = gameId, Ip = Ip });
       return result > 0;
 
