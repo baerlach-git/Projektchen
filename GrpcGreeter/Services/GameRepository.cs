@@ -13,10 +13,11 @@ namespace ExtendingBogus
   {
     private readonly string _connectionString;
 
-    public GameRepository(IConfiguration config)
+    public GameRepository()
     {
-      _connectionString = config.GetConnectionString("DefaultConnection");
-    }
+      _connectionString = Environment.GetEnvironmentVariable("MYSQL_CONNECTION_STRING") 
+                          ?? throw new InvalidOperationException("Connection string not set in environment variables.");
+        }
 
     private IDbConnection Connection => new MySqlConnection(_connectionString);
 
