@@ -1,7 +1,12 @@
 services:
   games_backend:
     container_name: games_backend
-    image: games_backend
+    image: baerlach/games_backend
     build:
       context: .
       dockerfile: GrpcGreeter/Dockerfile
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
