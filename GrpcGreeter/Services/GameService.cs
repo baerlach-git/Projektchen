@@ -79,7 +79,6 @@ public class GameService : GrpcGameService.GameService.GameServiceBase
         GameId = request.GameId,
         Ip = request.Ip,
         Rating = request.Rating,
-        Comment = request.Comment,
         CreatedAt = DateTime.UtcNow,
         UpdatedAt = DateTime.UtcNow
       };

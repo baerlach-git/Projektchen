@@ -3,9 +3,7 @@ using Bogus.Premium;
 
 namespace ExtendingBogus
 {
-  /// <summary>
-  /// The following shows how to create a dedicated DataSet accessible via C# extension method.
-  /// </summary>
+
   public static class ExtensionsForGames
   {
     public static GameData GameData(this Faker faker)
@@ -14,9 +12,7 @@ namespace ExtendingBogus
     }
   }
 
-  /// <summary>
-  /// This DatSet can be created manually using `new Candy()`, or by fluent extension method via <seealso cref="ExtensionsForFood"/>.
-  /// </summary>
+
   public class GameData : DataSet
   {
     private static readonly string[] Genres =
@@ -25,9 +21,7 @@ namespace ExtendingBogus
             "Beat'em Up", "Racing", "Platformer", "Point'n'Click"
          };
 
-    /// <summary>
-    /// Returns some type of candy.
-    /// </summary>
+
     public string Genre()
     {
       return this.Random.ArrayElement(Genres);

@@ -15,9 +15,9 @@ namespace ExtendingBogus
 
     public GameRepository()
     {
-      _connectionString = Environment.GetEnvironmentVariable("MYSQL_CONNECTION_STRING") 
+      _connectionString = Environment.GetEnvironmentVariable("MYSQL_CONNECTION_STRING")
                           ?? throw new InvalidOperationException("Connection string not set in environment variables.");
-        }
+    }
 
     private IDbConnection Connection => new MySqlConnection(_connectionString);
 
@@ -26,7 +26,7 @@ namespace ExtendingBogus
       var query = @"
         SELECT 
           g.Id, g.Name, g.ReleaseDate, g.Publisher, g.DevStudio, g.Platform, g.Genre, g.CreatedAt, g.UpdatedAt, 
-          r.Id AS RatingId, r.GameId, r.Ip, r.Rating, r.Comment, r.CreatedAt AS RatingCreatedAt, r.UpdatedAt AS RatingUpdatedAt
+          r.Id AS RatingId, r.GameId, r.Ip, r.Rating, r.CreatedAt AS RatingCreatedAt, r.UpdatedAt AS RatingUpdatedAt
         FROM Games g
         LEFT JOIN GameRatings r ON g.Id = r.GameId
         ";
@@ -70,7 +70,7 @@ namespace ExtendingBogus
     {
       using var db = Connection;
       var sql = @"
-        SELECT COUNT(*) 
+        SELECT COUNT(1) 
         FROM Games g 
         LEFT JOIN GameRatings r 
         ON g.Id = r.GameId
@@ -84,8 +84,8 @@ namespace ExtendingBogus
     {
       using var db = Connection;
       var sql = @"
-        INSERT INTO GameRatings (GameId, Ip, Rating, Comment)
-        VALUES (@GameId, @Ip, @Rating, @Comment)";
+        INSERT INTO GameRatings (GameId, Ip, Rating)
+        VALUES (@GameId, @Ip, @Rating)";
 
       await db.ExecuteAsync(sql, rating);
     }
@@ -95,7 +95,7 @@ namespace ExtendingBogus
       using var db = Connection;
       var sql = @"
         UPDATE GameRatings 
-        SET Rating = @Rating, Comment = @Comment
+        SET Rating = @Rating
         WHERE Id = @Id";
       await db.ExecuteAsync(sql, rating);
 
@@ -126,7 +126,6 @@ namespace ExtendingBogus
           GameId INT NOT NULL,
           Ip VARCHAR(100) NOT NULL,
           Rating INT NOT NULL CHECK (Rating >= 1 AND Rating <= 5),
-          Comment VARCHAR(500) NOT NULL,
           CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           PRIMARY KEY(Id),
@@ -163,12 +162,11 @@ namespace ExtendingBogus
         var ratingFaker = new Faker<GameRating>()
           .RuleFor(r => r.GameId, f => f.PickRandom(gameIds))
           .RuleFor(r => r.Ip, f => f.Internet.Ip())
-          .RuleFor(r => r.Rating, f => f.Random.Int(1, 5))
-          .RuleFor(r => r.Comment, f => f.Rant.Review("game"));
+          .RuleFor(r => r.Rating, f => f.Random.Int(1, 5));
 
         var ratings = ratingFaker.Generate(1000);
         var insertRatings = @"
-        INSERT INTO GameRatings (GameId, Ip, Rating, Comment) VALUES (@GameId, @Ip, @Rating, @Comment);";
+        INSERT INTO GameRatings (GameId, Ip, Rating) VALUES (@GameId, @Ip, @Rating);";
         await db.ExecuteAsync(insertRatings, ratings);
 
 

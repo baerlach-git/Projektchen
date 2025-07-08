@@ -25,30 +25,29 @@ namespace GrpcGameService {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChJQcm90b3MvZ2FtZXMucHJvdG8aH2dvb2dsZS9wcm90b2J1Zi90aW1lc3Rh",
-            "bXAucHJvdG8iUAoRR2FtZVJhdGluZ1JlcXVlc3QSDgoGZ2FtZUlkGAEgASgF",
-            "EgoKAmlwGAIgASgJEg4KBnJhdGluZxgDIAEoBRIPCgdjb21tZW50GAQgASgJ",
-            "IjYKEkdhbWVSYXRpbmdSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEg8KB21l",
-            "c3NhZ2UYAiABKAkiBwoFRW1wdHkiswEKCkdhbWVSYXRpbmcSCgoCaWQYASAB",
-            "KAUSDgoGZ2FtZUlkGAIgASgFEgoKAmlwGAMgASgJEg4KBnJhdGluZxgEIAEo",
-            "BRIPCgdjb21tZW50GAUgASgJEi0KCWNyZWF0ZWRBdBgGIAEoCzIaLmdvb2ds",
-            "ZS5wcm90b2J1Zi5UaW1lc3RhbXASLQoJdXBkYXRlZEF0GAcgASgLMhouZ29v",
-            "Z2xlLnByb3RvYnVmLlRpbWVzdGFtcCL4AQoER2FtZRIKCgJpZBgBIAEoBRIM",
-            "CgRuYW1lGAIgASgJEhMKC3JlbGVhc2VEYXRlGAMgASgFEhEKCXB1Ymxpc2hl",
-            "chgEIAEoCRIRCglkZXZTdHVkaW8YBSABKAkSEAoIcGxhdGZvcm0YBiABKAkS",
-            "DQoFZ2VucmUYByABKAkSHAoHcmF0aW5ncxgIIAMoCzILLkdhbWVSYXRpbmcS",
-            "LQoJY3JlYXRlZEF0GAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFt",
-            "cBItCgl1cGRhdGVkQXQYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0",
-            "YW1wIiAKCEdhbWVMaXN0EhQKBWdhbWVzGAEgAygLMgUuR2FtZTJiCgtHYW1l",
-            "U2VydmljZRIdCghHZXRHYW1lcxIGLkVtcHR5GgkuR2FtZUxpc3QSNAoJQWRk",
-            "UmF0aW5nEhIuR2FtZVJhdGluZ1JlcXVlc3QaEy5HYW1lUmF0aW5nUmVzcG9u",
-            "c2VCEqoCD0dycGNHYW1lU2VydmljZWIGcHJvdG8z"));
+            "bXAucHJvdG8iPwoRR2FtZVJhdGluZ1JlcXVlc3QSDgoGZ2FtZUlkGAEgASgF",
+            "EgoKAmlwGAIgASgJEg4KBnJhdGluZxgDIAEoBSI2ChJHYW1lUmF0aW5nUmVz",
+            "cG9uc2USDwoHc3VjY2VzcxgBIAEoCBIPCgdtZXNzYWdlGAIgASgJIgcKBUVt",
+            "cHR5IqIBCgpHYW1lUmF0aW5nEgoKAmlkGAEgASgFEg4KBmdhbWVJZBgCIAEo",
+            "BRIKCgJpcBgDIAEoCRIOCgZyYXRpbmcYBCABKAUSLQoJY3JlYXRlZEF0GAYg",
+            "ASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBItCgl1cGRhdGVkQXQY",
+            "ByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIvgBCgRHYW1lEgoK",
+            "AmlkGAEgASgFEgwKBG5hbWUYAiABKAkSEwoLcmVsZWFzZURhdGUYAyABKAUS",
+            "EQoJcHVibGlzaGVyGAQgASgJEhEKCWRldlN0dWRpbxgFIAEoCRIQCghwbGF0",
+            "Zm9ybRgGIAEoCRINCgVnZW5yZRgHIAEoCRIcCgdyYXRpbmdzGAggAygLMgsu",
+            "R2FtZVJhdGluZxItCgljcmVhdGVkQXQYCSABKAsyGi5nb29nbGUucHJvdG9i",
+            "dWYuVGltZXN0YW1wEi0KCXVwZGF0ZWRBdBgKIAEoCzIaLmdvb2dsZS5wcm90",
+            "b2J1Zi5UaW1lc3RhbXAiIAoIR2FtZUxpc3QSFAoFZ2FtZXMYASADKAsyBS5H",
+            "YW1lMmIKC0dhbWVTZXJ2aWNlEh0KCEdldEdhbWVzEgYuRW1wdHkaCS5HYW1l",
+            "TGlzdBI0CglBZGRSYXRpbmcSEi5HYW1lUmF0aW5nUmVxdWVzdBoTLkdhbWVS",
+            "YXRpbmdSZXNwb25zZUISqgIPR3JwY0dhbWVTZXJ2aWNlYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::GrpcGameService.GameRatingRequest), global::GrpcGameService.GameRatingRequest.Parser, new[]{ "GameId", "Ip", "Rating", "Comment" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::GrpcGameService.GameRatingRequest), global::GrpcGameService.GameRatingRequest.Parser, new[]{ "GameId", "Ip", "Rating" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::GrpcGameService.GameRatingResponse), global::GrpcGameService.GameRatingResponse.Parser, new[]{ "Success", "Message" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::GrpcGameService.Empty), global::GrpcGameService.Empty.Parser, null, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::GrpcGameService.GameRating), global::GrpcGameService.GameRating.Parser, new[]{ "Id", "GameId", "Ip", "Rating", "Comment", "CreatedAt", "UpdatedAt" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::GrpcGameService.GameRating), global::GrpcGameService.GameRating.Parser, new[]{ "Id", "GameId", "Ip", "Rating", "CreatedAt", "UpdatedAt" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::GrpcGameService.Game), global::GrpcGameService.Game.Parser, new[]{ "Id", "Name", "ReleaseDate", "Publisher", "DevStudio", "Platform", "Genre", "Ratings", "CreatedAt", "UpdatedAt" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::GrpcGameService.GameList), global::GrpcGameService.GameList.Parser, new[]{ "Games" }, null, null, null, null)
           }));
@@ -95,7 +94,6 @@ namespace GrpcGameService {
       gameId_ = other.gameId_;
       ip_ = other.ip_;
       rating_ = other.rating_;
-      comment_ = other.comment_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -141,18 +139,6 @@ namespace GrpcGameService {
       }
     }
 
-    /// <summary>Field number for the "comment" field.</summary>
-    public const int CommentFieldNumber = 4;
-    private string comment_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Comment {
-      get { return comment_; }
-      set {
-        comment_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -171,7 +157,6 @@ namespace GrpcGameService {
       if (GameId != other.GameId) return false;
       if (Ip != other.Ip) return false;
       if (Rating != other.Rating) return false;
-      if (Comment != other.Comment) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -182,7 +167,6 @@ namespace GrpcGameService {
       if (GameId != 0) hash ^= GameId.GetHashCode();
       if (Ip.Length != 0) hash ^= Ip.GetHashCode();
       if (Rating != 0) hash ^= Rating.GetHashCode();
-      if (Comment.Length != 0) hash ^= Comment.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -213,10 +197,6 @@ namespace GrpcGameService {
         output.WriteRawTag(24);
         output.WriteInt32(Rating);
       }
-      if (Comment.Length != 0) {
-        output.WriteRawTag(34);
-        output.WriteString(Comment);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -239,10 +219,6 @@ namespace GrpcGameService {
         output.WriteRawTag(24);
         output.WriteInt32(Rating);
       }
-      if (Comment.Length != 0) {
-        output.WriteRawTag(34);
-        output.WriteString(Comment);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -261,9 +237,6 @@ namespace GrpcGameService {
       }
       if (Rating != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Rating);
-      }
-      if (Comment.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Comment);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -285,9 +258,6 @@ namespace GrpcGameService {
       }
       if (other.Rating != 0) {
         Rating = other.Rating;
-      }
-      if (other.Comment.Length != 0) {
-        Comment = other.Comment;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -320,10 +290,6 @@ namespace GrpcGameService {
             Rating = input.ReadInt32();
             break;
           }
-          case 34: {
-            Comment = input.ReadString();
-            break;
-          }
         }
       }
     #endif
@@ -353,10 +319,6 @@ namespace GrpcGameService {
           }
           case 24: {
             Rating = input.ReadInt32();
-            break;
-          }
-          case 34: {
-            Comment = input.ReadString();
             break;
           }
         }
@@ -801,7 +763,6 @@ namespace GrpcGameService {
       gameId_ = other.gameId_;
       ip_ = other.ip_;
       rating_ = other.rating_;
-      comment_ = other.comment_;
       createdAt_ = other.createdAt_ != null ? other.createdAt_.Clone() : null;
       updatedAt_ = other.updatedAt_ != null ? other.updatedAt_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -861,18 +822,6 @@ namespace GrpcGameService {
       }
     }
 
-    /// <summary>Field number for the "comment" field.</summary>
-    public const int CommentFieldNumber = 5;
-    private string comment_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Comment {
-      get { return comment_; }
-      set {
-        comment_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
     /// <summary>Field number for the "createdAt" field.</summary>
     public const int CreatedAtFieldNumber = 6;
     private global::Google.Protobuf.WellKnownTypes.Timestamp createdAt_;
@@ -916,7 +865,6 @@ namespace GrpcGameService {
       if (GameId != other.GameId) return false;
       if (Ip != other.Ip) return false;
       if (Rating != other.Rating) return false;
-      if (Comment != other.Comment) return false;
       if (!object.Equals(CreatedAt, other.CreatedAt)) return false;
       if (!object.Equals(UpdatedAt, other.UpdatedAt)) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -930,7 +878,6 @@ namespace GrpcGameService {
       if (GameId != 0) hash ^= GameId.GetHashCode();
       if (Ip.Length != 0) hash ^= Ip.GetHashCode();
       if (Rating != 0) hash ^= Rating.GetHashCode();
-      if (Comment.Length != 0) hash ^= Comment.GetHashCode();
       if (createdAt_ != null) hash ^= CreatedAt.GetHashCode();
       if (updatedAt_ != null) hash ^= UpdatedAt.GetHashCode();
       if (_unknownFields != null) {
@@ -967,10 +914,6 @@ namespace GrpcGameService {
         output.WriteRawTag(32);
         output.WriteInt32(Rating);
       }
-      if (Comment.Length != 0) {
-        output.WriteRawTag(42);
-        output.WriteString(Comment);
-      }
       if (createdAt_ != null) {
         output.WriteRawTag(50);
         output.WriteMessage(CreatedAt);
@@ -1005,10 +948,6 @@ namespace GrpcGameService {
         output.WriteRawTag(32);
         output.WriteInt32(Rating);
       }
-      if (Comment.Length != 0) {
-        output.WriteRawTag(42);
-        output.WriteString(Comment);
-      }
       if (createdAt_ != null) {
         output.WriteRawTag(50);
         output.WriteMessage(CreatedAt);
@@ -1039,9 +978,6 @@ namespace GrpcGameService {
       if (Rating != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Rating);
       }
-      if (Comment.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Comment);
-      }
       if (createdAt_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(CreatedAt);
       }
@@ -1071,9 +1007,6 @@ namespace GrpcGameService {
       }
       if (other.Rating != 0) {
         Rating = other.Rating;
-      }
-      if (other.Comment.Length != 0) {
-        Comment = other.Comment;
       }
       if (other.createdAt_ != null) {
         if (createdAt_ == null) {
@@ -1120,10 +1053,6 @@ namespace GrpcGameService {
           }
           case 32: {
             Rating = input.ReadInt32();
-            break;
-          }
-          case 42: {
-            Comment = input.ReadString();
             break;
           }
           case 50: {
@@ -1173,10 +1102,6 @@ namespace GrpcGameService {
           }
           case 32: {
             Rating = input.ReadInt32();
-            break;
-          }
-          case 42: {
-            Comment = input.ReadString();
             break;
           }
           case 50: {

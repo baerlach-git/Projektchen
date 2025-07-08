@@ -13,7 +13,6 @@ message GameRatingRequest {
   int32 gameId = 1;
   string ip = 2;
   int32 rating = 3;
-  string comment = 4;
 }
 
 message GameRatingResponse {
@@ -28,7 +27,6 @@ message GameRating {
   int32 gameId = 2;
   string ip = 3;
   int32 rating = 4;
-  string comment = 5;
   google.protobuf.Timestamp createdAt = 6;
   google.protobuf.Timestamp updatedAt = 7;
 
