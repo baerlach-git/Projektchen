@@ -1,6 +1,5 @@
-// Services/ProductRepository.cs
 using Dapper;
-using MySql.Data.MySqlClient; // Or use MySqlConnector.MySqlClient if using MySqlConnector
+using MySql.Data.MySqlClient;
 using System.Data;
 using Bogus;
 using Bogus.DataSets;
@@ -57,7 +56,6 @@ namespace ExtendingBogus
       return GameDict.Values;
     }
 
-    //TODO rethink if I want to keep this, maybe integrate check for ip in this/ also use this result for checking ip?
     public async Task<bool> GameExistsAsync(int gameId)
     {
       using var db = Connection;
