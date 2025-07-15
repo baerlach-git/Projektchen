@@ -24,8 +24,8 @@ services:
     expose:
       - "3306"
     volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - games-db:/var/lib/mysql
 
 volumes:
   games-db:
-
