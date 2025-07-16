@@ -12,7 +12,7 @@ services:
     ports:
       - "5233:5233"
   db:
-    image: mysql
+    image: mysql:latest
     restart: always
     environment:
       - MYSQL_DATABASE=db

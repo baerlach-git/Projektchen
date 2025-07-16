@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "google/protobuf/timestamp.proto";
-
 option csharp_namespace = "GrpcGameService";
 
 service GameService {
@@ -11,8 +9,7 @@ service GameService {
 
 message GameRatingRequest {
   int32 gameId = 1;
-  string ip = 2;
-  int32 rating = 3;
+  int32 rating = 2;
 }
 
 message GameRatingResponse {
@@ -27,11 +24,6 @@ message GameRating {
   int32 gameId = 2;
   string ip = 3;
   int32 rating = 4;
-  google.protobuf.Timestamp createdAt = 6;
-  google.protobuf.Timestamp updatedAt = 7;
-
-
-
 
 }
 
@@ -43,9 +35,7 @@ message Game {
   string devStudio = 5;
   string platform = 6;
   string genre = 7;
-  repeated GameRating ratings = 8;
-  google.protobuf.Timestamp createdAt = 9;
-  google.protobuf.Timestamp updatedAt = 10;
+  float averageRating = 8;
   
 }
 

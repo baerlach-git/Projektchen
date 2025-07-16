@@ -1,21 +1,17 @@
-using Bogus.DataSets;
-using Google.Protobuf.WellKnownTypes;
 
 public class Game
 {
-  public int Id { get; set; }
-  public string Name { get; set; }
-  public int ReleaseDate { get; set; }
+  public required int Id { get; set; }
+  public required string Name { get; set; }
+  public required int ReleaseDate { get; set; }
 
-  public string Publisher { get; set; }
-  public string DevStudio { get; set; }
+  public required string Publisher { get; set; }
+  public required string DevStudio { get; set; }
 
-  public string Platform { get; set; }
+  public required string Platform { get; set; }
 
-  public string Genre { get; set; }
-  public DateTime CreatedAt { get; set; }
-  public DateTime UpdatedAt { get; set; }
+  public required string Genre { get; set; }
+  public required float averageRating { get; set; }
 
-  public List<GameRating> Ratings { get; set; } = new();
 
 }

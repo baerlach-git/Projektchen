@@ -1,18 +1,17 @@
-using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using GrpcGameService;
 
 
 public class GameService : GrpcGameService.GameService.GameServiceBase
 {
-  private readonly ExtendingBogus.GameRepository _repo;
+  private readonly GameRepository _repo;
 
-  public GameService(ExtendingBogus.GameRepository repo)
+  public GameService(GameRepository repo)
   {
     _repo = repo;
   }
 
-  public override async Task<GameList> GetGames(GrpcGameService.Empty request, ServerCallContext context)
+  public override async Task<GameList> GetGames(Empty request, ServerCallContext context)
   {
     try
     {
@@ -31,21 +30,9 @@ public class GameService : GrpcGameService.GameService.GameServiceBase
           DevStudio = g.DevStudio,
           Platform = g.Platform,
           Genre = g.Genre,
-          CreatedAt = Timestamp.FromDateTime(g.CreatedAt.ToUniversalTime()),
-          UpdatedAt = Timestamp.FromDateTime(g.UpdatedAt.ToUniversalTime())
-
-
+          AverageRating = g.averageRating,
         };
 
-        grpcGame.Ratings.AddRange(g.Ratings.Select(r => new GrpcGameService.GameRating
-        {
-          Id = r.Id,
-          Ip = r.Ip,
-          Rating = r.Rating,
-          GameId = r.GameId,
-          CreatedAt = Timestamp.FromDateTime(r.CreatedAt.ToUniversalTime()),
-          UpdatedAt = Timestamp.FromDateTime(r.UpdatedAt.ToUniversalTime())
-        }));
 
         response.Games.Add(grpcGame);
       }
@@ -67,23 +54,27 @@ public class GameService : GrpcGameService.GameService.GameServiceBase
       var gameExists = await _repo.GameExistsAsync(request.GameId);
       if (!gameExists)
       {
-        return new GameRatingResponse
-        {
-          Success = false,
-          Message = "Game not found"
-        };
+        throw new RpcException(new Status(StatusCode.NotFound, "The game does not exist"));
+      }
+
+      var httpContext = context.GetHttpContext();
+      var clientIp = httpContext.Connection.RemoteIpAddress?.ToString();
+      Console.WriteLine(clientIp);
+
+      if (clientIp == null)
+      {
+        //note sure which error code would be reasonable, RemoteIpAddress is only null for non TCP connections. Is this case even possible considering I control the client/ in a GRPC Client in general?
+        throw new RpcException(new Status(StatusCode.Aborted, "Only TCP connections are accepted"));
       }
 
       var rating = new GameRating
       {
         GameId = request.GameId,
-        Ip = request.Ip,
+        Ip = clientIp,
         Rating = request.Rating,
-        CreatedAt = DateTime.UtcNow,
-        UpdatedAt = DateTime.UtcNow
       };
 
-      var ratingExists = await _repo.RatingExistsAsync(request.GameId, request.Ip);
+      var ratingExists = await _repo.RatingExistsAsync(request.GameId, clientIp);
 
       if (ratingExists)
       {
@@ -108,12 +99,11 @@ public class GameService : GrpcGameService.GameService.GameServiceBase
 
       }
 
-
     }
     catch (Exception ex)
     {
       Console.WriteLine("Error in AddRating: " + ex.Message);
-      throw new RpcException(new Status(StatusCode.Internal, "Internal server error"));
+      throw new RpcException(new Status(StatusCode.Internal, "Rating insert/update failed"));
     }
 
 

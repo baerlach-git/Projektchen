@@ -7,7 +7,7 @@ var channel = GrpcChannel.ForAddress("http://localhost:5233", new GrpcChannelOpt
     HttpHandler = new HttpClientHandler()
 });
 
-var gamesClient = new GameService.GameServiceClient(channel); //GamesServiceClient is an automatically generated class?
+var gamesClient = new GameService.GameServiceClient(channel);
 
 var headers = new Metadata
 {
@@ -17,11 +17,13 @@ var headers = new Metadata
 
 
 var gamesReply = await gamesClient.GetGamesAsync(new Empty { }, headers);
-Console.WriteLine("these are our Games:");
-Console.WriteLine("sry, there are too many games to print them all out");
-//Console.Write(gamesReply.Games);
+Console.WriteLine("these are some of our Games:");
+foreach (var game in gamesReply.Games.Where(g => g.Id <= 5))
+{
+    Console.WriteLine(game);
+}
 
-var ratingReply = await gamesClient.AddRatingAsync(new GameRatingRequest { GameId = 1, Ip = "5.61.144.202", Rating = 5 }, headers);
+var ratingReply = await gamesClient.AddRatingAsync(new GameRatingRequest { GameId = 1, Rating = 5 }, headers);
 Console.WriteLine("Ratingreply:");
 Console.WriteLine(ratingReply.Message);
 

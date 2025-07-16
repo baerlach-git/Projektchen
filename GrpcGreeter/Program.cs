@@ -6,13 +6,13 @@ builder.Services.AddGrpc(options =>
   options.Interceptors.Add<ApiKeyInterceptor>();
 }).AddServiceOptions<GameService>(opt => opt.EnableDetailedErrors = true);
 
-builder.Services.AddSingleton<ExtendingBogus.GameRepository>();
+builder.Services.AddSingleton<GameRepository>();
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-  var repo = scope.ServiceProvider.GetRequiredService<ExtendingBogus.GameRepository>();
+  var repo = scope.ServiceProvider.GetRequiredService<GameRepository>();
   await repo.SeedDatabaseAsync();
 }
 

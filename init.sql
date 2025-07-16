@@ -1,3 +1,20 @@
+CREATE TABLE IF NOT EXISTS Publisher (
+  Id INT AUTO_INCREMENT,
+  Name VARCHAR(100),
+  CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY(Id)
+);
+
+CREATE TABLE IF NOT EXISTS DevStudio (
+  Id INT AUTO_INCREMENT,
+  Name VARCHAR(100),
+  CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY(Id)
+);
+
+
 CREATE TABLE IF NOT EXISTS Games (
   Id INT AUTO_INCREMENT,
   Name VARCHAR(100) NOT NULL,
@@ -8,7 +25,7 @@ CREATE TABLE IF NOT EXISTS Games (
   UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY(Id),
   FOREIGN KEY(PublisherId) REFERENCES Publisher(Id),
-  FOREIGN KEY(DevStudio) REFERENCES DevStudio(Id)
+  FOREIGN KEY(DevStudioId) REFERENCES DevStudio(Id)
 );
 
 CREATE TABLE IF NOT EXISTS GameRatings (
@@ -22,28 +39,12 @@ CREATE TABLE IF NOT EXISTS GameRatings (
   FOREIGN KEY (GameId) REFERENCES Games(Id)
 );
 
-CREATE TABLE IF NOT EXISTS Publisher (
-  Id INT AUTO_INCREMENT,
-  Name VARCHAR(100),
-  CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY(Id),
-);
-
-CREATE TABLE IF NOT EXISTS DevStudio (
-  Id INT AUTO_INCREMENT,
-  Name VARCHAR(100),
-  CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY(Id),
-);
-
 CREATE TABLE IF NOT EXISTS Platform (
   Id INT AUTO_INCREMENT,
   Name VARCHAR(100),
   CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY(Id),
+  PRIMARY KEY(Id)
 );
 
 CREATE TABLE IF NOT EXISTS Genre (
@@ -51,12 +52,12 @@ CREATE TABLE IF NOT EXISTS Genre (
   Name VARCHAR(100),
   CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY(Id),
+  PRIMARY KEY(Id)
 );
 
 CREATE TABLE IF NOT EXISTS Game_Platform (
   GameId INT NOT NULL,
-  PlatformId INT NOT NULL
+  PlatformId INT NOT NULL,
   CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY(GameId, PlatformId),
@@ -72,4 +73,50 @@ UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 PRIMARY KEY(GameId, GenreId),
 FOREIGN KEY(GameId) REFERENCES Games(Id),
 FOREIGN KEY(GenreId) REFERENCES Genre(Id)
-)
+);
+
+  INSERT INTO Publisher (Name)
+VALUES
+  ("Oxymoron"),
+  ("Electronic Crafts"),
+  ("Macrosoft"),
+  ("Activision Sandstrom"),
+  ("Give-Two Interactive"),
+  ("Ubihard"),
+  ("Hundredcent Games"),
+  ("Circle Enix"),
+  ("Nintendon't");
+
+INSERT INTO Genre (Name)
+VALUES
+  ("RPG"),
+  ("Strategy"), 
+  ("RTS"), 
+  ("Shooter"),
+  ("Beat'em Up"),
+  ("Racing"),
+  ("Platformer"),
+  ("Point'n'Click");
+
+INSERT INTO Platform (Name)
+VALUES
+  ("PC"),
+  ("Playstation"),
+  ("Xbox"), 
+  ("Switch"), 
+  ("Mobile");
+
+INSERT INTO DevStudio (Name)
+VALUES  
+  ("Oxymoron"),
+  ("Concerned Monkey"),
+  ("Pre-Logic"),
+  ("Bungee"),
+  ("Quartz"),
+  ("Gutpunch Studios"),
+  ("Sun Studios"),
+  ("Magmaboots Studios"),
+  ("Alive Human Ship Games"),
+  ("ToSoftware Inc."),
+  ("StoryWorlds Entertainment"),
+  ("Red Bait Studios");
