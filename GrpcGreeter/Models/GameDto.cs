@@ -1,5 +1,5 @@
 namespace GrpcGreeter.Models;
-public record Game(
+public record GameDto(
     uint Id,
     string Name,
     ushort ReleaseDate,

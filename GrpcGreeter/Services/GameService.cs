@@ -1,10 +1,11 @@
 namespace GrpcGreeter.Services;
 
 using Grpc.Core;
-using GrpcGameService;
+using GameServiceProtos;
+using Models;
 
 
-public class GameService : GrpcGameService.GameService.GameServiceBase
+public class GameService : GameServiceProtos.GameService.GameServiceBase
 {
   private readonly GameRepository _repo;
 
@@ -13,7 +14,7 @@ public class GameService : GrpcGameService.GameService.GameServiceBase
     _repo = repo;
   }
 
-  public override async Task<GameList> GetGames(Empty request, ServerCallContext context)
+  public override async Task<GameList> GetGames(EmptyMessage request, ServerCallContext context)
   {
     try
     {
@@ -23,7 +24,7 @@ public class GameService : GrpcGameService.GameService.GameServiceBase
 
       foreach (var g in games)
       {
-        var grpcGame = new GrpcGameService.Game
+        var grpcGame = new Game
         {
           Id = g.Id,
           Name = g.Name,
@@ -61,7 +62,6 @@ public class GameService : GrpcGameService.GameService.GameServiceBase
 
       var httpContext = context.GetHttpContext();
       var clientIp = httpContext.Connection.RemoteIpAddress?.ToString();
-      Console.WriteLine(clientIp);
 
       if (clientIp == null)
       {
@@ -69,12 +69,12 @@ public class GameService : GrpcGameService.GameService.GameServiceBase
         throw new RpcException(new Status(StatusCode.Aborted, "Only TCP connections are accepted"));
       }
 
-      var rating = new GameRating
-      {
-        GameId = request.GameId,
-        Ip = clientIp,
-        Rating = request.Rating,
-      };
+      var rating = new GameRatingUpsertData
+      (
+        request.GameId,
+        clientIp,
+        request.Rating
+      );
 
       var ratingExists = await _repo.RatingExistsAsync(request.GameId, clientIp);
 

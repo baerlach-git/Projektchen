@@ -1,6 +1,6 @@
 ﻿using Grpc.Net.Client;
 using Grpc.Core;
-using GrpcGameService;
+using GameServiceProtos;
 //server address http://188.245.118.112:5233
 var channel = GrpcChannel.ForAddress("http://localhost:5233", new GrpcChannelOptions
 {
@@ -16,7 +16,7 @@ var headers = new Metadata
 
 
 
-var gamesReply = await gamesClient.GetGamesAsync(new Empty { }, headers);
+var gamesReply = await gamesClient.GetGamesAsync(new EmptyMessage { }, headers);
 Console.WriteLine("these are some of our Games:");
 foreach (var game in gamesReply.Games.Where(g => g.Id <= 5))
 {

@@ -4,8 +4,8 @@ using Dapper;
 using MySql.Data.MySqlClient;
 using System.Data;
 using Bogus;
-using GrpcGreeter.Models;
-using GrpcGreeter.FakerClasses;
+using Models;
+using FakerClasses;
 
 
 
@@ -24,7 +24,7 @@ public class GameRepository
   
   private IDbConnection Connection => new MySqlConnection(_connectionString);
 
-  public async Task<IEnumerable<Game>> GetGamesWithRatingsAsync()
+  public async Task<IEnumerable<GameDto>> GetGamesWithRatingsAsync()
   {
     var query = @"
       SELECT 
@@ -46,7 +46,7 @@ public class GameRepository
       ";
     using var db = Connection;
 
-    var result = await db.QueryAsync<Game>(query);
+    var result = await db.QueryAsync<GameDto>(query);
     return result;
   }
 
@@ -72,7 +72,7 @@ public class GameRepository
 
   }
 
-  public async Task AddRatingAsync(GrpcGameService.GameRating rating)
+  public async Task AddRatingAsync(GameRatingUpsertData rating)
   {
     using var db = Connection;
     var sql = @"
@@ -82,13 +82,13 @@ public class GameRepository
     await db.ExecuteAsync(sql, rating);
   }
 
-  public async Task UpdateRatingAsync(GameRating rating)
+  public async Task UpdateRatingAsync(GameRatingUpsertData rating)
   {
     using var db = Connection;
     var sql = @"
-      UPDATE GameRating 
+      UPDATE GameRatingg 
       SET Rating = @Rating
-      WHERE Id = @Id";
+      WHERE Ip = @Id";
     await db.ExecuteAsync(sql, rating);
 
   }
@@ -107,7 +107,7 @@ public class GameRepository
       var publisherIds = (await db.QueryAsync<int>("SELECT Id FROM Publisher")).ToList();
       var genreIds = (await db.QueryAsync<int>("SELECT Id FROM Genre")).ToList();
       var platformIds = (await db.QueryAsync<int>("SELECT Id FROM Platform")).ToList();
-      var DevStudioIds = (await db.QueryAsync<int>("SELECT Id FROM DevStudio")).ToList();
+      var devStudioIds = (await db.QueryAsync<int>("SELECT Id FROM DevStudio")).ToList();
 
 
 
@@ -117,7 +117,7 @@ public class GameRepository
         .RuleFor(g => g.Name, f => f.Commerce.ProductName())
         .RuleFor(g => g.ReleaseDate, f => f.Random.Int(1980, 2025))
         .RuleFor(g => g.PublisherId, (f, g) => f.PickRandom(publisherIds))
-        .RuleFor(g => g.DevStudioId, (f, g) => f.PickRandom(DevStudioIds));
+        .RuleFor(g => g.DevStudioId, (f, g) => f.PickRandom(devStudioIds));
 
       var fakeGames = gameFaker.Generate(fakeGameAmount);
 
@@ -129,12 +129,11 @@ public class GameRepository
     var ratingsCount = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM GameRating");
     if (ratingsCount == 0)
     {
-      var gameIds = (await db.QueryAsync<int>("SELECT Id FROM Game")).ToList();
-
-      var ratingFaker = new Faker<GameRating>()
-        .RuleFor(r => r.GameId, f => f.PickRandom(gameIds))
+      var gameIds = (await db.QueryAsync<uint>("SELECT Id FROM Game")).ToList();
+      var ratingFaker = new Faker<GameRatingUpsertData>()
+        .RuleFor(r => r.GameId, (f => f.PickRandom(gameIds))) 
         .RuleFor(r => r.Ip, f => f.Internet.Ip())
-        .RuleFor(r => r.Rating, f => f.Random.Int(1, 5));
+        .RuleFor(r => r.Rating, (f => (uint)f.Random.Int(1, 5)));
 
       var ratings = ratingFaker.Generate(1000);
       var insertRatings = @"

@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-     <Protobuf Include="..\Protos\games.proto" GrpcServices="Server" />
+    <Protobuf Include="..\Protos\empty_message.proto" GrpcServices="Server" />
+    <Protobuf Include="..\Protos\game.proto" GrpcServices="Server" />
+    <Protobuf Include="..\Protos\game_list.proto" GrpcServices="Server" />
+    <Protobuf Include="..\Protos\game_rating_request.proto" GrpcServices="Server" />
+    <Protobuf Include="..\Protos\game_rating_response.proto" GrpcServices="Server" />
+    <Protobuf Include="..\Protos\game_service.proto" GrpcServices="Server" />
   </ItemGroup>
 
   <ItemGroup>

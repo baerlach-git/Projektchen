@@ -1,7 +1,6 @@
 namespace GrpcGreeter.Models;
-public record GameRating
+public record GameRatingUpsertData
 (
-  uint Id,
   uint GameId,
   string Ip,
   uint Rating
