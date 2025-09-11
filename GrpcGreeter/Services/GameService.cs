@@ -1,3 +1,5 @@
+namespace GrpcGreeter.Services;
+
 using Grpc.Core;
 using GrpcGameService;
 
@@ -30,7 +32,7 @@ public class GameService : GrpcGameService.GameService.GameServiceBase
           DevStudio = g.DevStudio,
           Platform = g.Platform,
           Genre = g.Genre,
-          AverageRating = g.averageRating,
+          AverageRating = g.AverageRating,
         };
 
 

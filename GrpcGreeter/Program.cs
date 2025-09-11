@@ -1,6 +1,8 @@
+using GrpcGreeter.Interceptors;
+using GrpcGreeter.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddGrpc(options =>
 {
   options.Interceptors.Add<ApiKeyInterceptor>();

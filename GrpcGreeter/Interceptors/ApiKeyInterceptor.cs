@@ -1,13 +1,15 @@
+namespace GrpcGreeter.Interceptors;
+
 using Grpc.Core;
 using Grpc.Core.Interceptors;
-using Microsoft.Extensions.Configuration;
 
 public class ApiKeyInterceptor : Interceptor
 {
-  private readonly string _expectedApiKey;
-
+  private readonly string? _expectedApiKey;
   public ApiKeyInterceptor(IConfiguration configuration)
   {
+   ArgumentNullException.ThrowIfNull(configuration);
+
     _expectedApiKey = configuration["ApiKey"];
   }
 

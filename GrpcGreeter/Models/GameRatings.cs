@@ -1,10 +1,8 @@
-
-public class GameRating
-{
-  public int Id { get; set; }
-
-  public int GameId { get; set; }
-  public string Ip { get; set; }
-  public int Rating { get; set; }
-
-}
+namespace GrpcGreeter.Models;
+public record GameRating
+(
+  uint Id,
+  uint GameId,
+  string Ip,
+  uint Rating
+);

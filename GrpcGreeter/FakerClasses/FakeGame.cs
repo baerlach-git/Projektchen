@@ -1,3 +1,5 @@
+namespace GrpcGreeter.FakerClasses;
+
 public class FakeGame
 {
   public required string Name { get; set; }
