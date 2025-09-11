@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+option csharp_namespace = "GameServiceProtos";
+
+message GameRatingRequest {
+  uint32 gameId = 1;
+  uint32 rating = 2;
+}

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "Protos/empty_message.proto";
+import "Protos/game.proto";
+import "Protos/game_list.proto";
+import "Protos/game_rating_request.proto";
+import "Protos/game_rating_response.proto";
+
+
+option csharp_namespace = "GameServiceProtos";
+
+service GameService {
+  rpc GetGames (EmptyMessage) returns (GameList);
+  rpc AddRating (GameRatingRequest) returns (GameRatingResponse);
+}

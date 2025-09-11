@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+import "Protos/game.proto";
+
+option csharp_namespace = "GameServiceProtos";
+
+message GameList {
+  repeated Game games = 1;
+}
