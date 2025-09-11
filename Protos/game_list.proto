@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "Protos/game.proto";
+import "game.proto";
 
 option csharp_namespace = "GameServiceProtos";
 

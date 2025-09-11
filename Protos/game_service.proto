@@ -1,10 +1,9 @@
 syntax = "proto3";
 
-import "Protos/empty_message.proto";
-import "Protos/game.proto";
-import "Protos/game_list.proto";
-import "Protos/game_rating_request.proto";
-import "Protos/game_rating_response.proto";
+import "empty_message.proto";
+import "game_list.proto";
+import "game_rating_request.proto";
+import "game_rating_response.proto";
 
 
 option csharp_namespace = "GameServiceProtos";
