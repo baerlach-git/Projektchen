@@ -4,7 +4,7 @@ public record GameDto(
     string Name,
     ushort ReleaseDate,
     string Publisher,
-    string DevStudio,
+    string Developer,
     string Platform,
     string Genre,
     float AverageRating

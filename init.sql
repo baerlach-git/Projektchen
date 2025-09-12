@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS Publisher (
   PRIMARY KEY(Id)
 );
 
-CREATE TABLE IF NOT EXISTS DevStudio (
+CREATE TABLE IF NOT EXISTS Developer (
   Id INT AUTO_INCREMENT,
   Name VARCHAR(100),
   CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -20,12 +20,12 @@ CREATE TABLE IF NOT EXISTS Game (
   Name VARCHAR(100) NOT NULL,
   ReleaseDate INT NOT NULL CHECK (ReleaseDate > 1950),
   PublisherId INT NOT NULL,
-  DevStudioId INT NOT NULL,
+    DeveloperId INT NOT NULL,
   CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY(Id),
   FOREIGN KEY(PublisherId) REFERENCES Publisher(Id),
-  FOREIGN KEY(DevStudioId) REFERENCES DevStudio(Id)
+  FOREIGN KEY(DDeveloperId) REFERENCES Developer(Id)
 );
 
 CREATE TABLE IF NOT EXISTS GameRating (
@@ -75,7 +75,7 @@ FOREIGN KEY(GameId) REFERENCES Game(Id),
 FOREIGN KEY(GenreId) REFERENCES Genre(Id)
 );
 
-  INSERT INTO Publisher (Name)
+INSERT INTO Publisher (Name)
 VALUES
   ("Oxymoron"),
   ("Electronic Crafts"),
@@ -106,7 +106,7 @@ VALUES
   ("Switch"), 
   ("Mobile");
 
-INSERT INTO DevStudio (Name)
+INSERT INTO Developer (Name)
 VALUES  
   ("Oxymoron"),
   ("Concerned Monkey"),

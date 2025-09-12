@@ -6,22 +6,16 @@ using System.Data;
 using Bogus;
 using Models;
 using FakerClasses;
-
-
-
-
+using Grpcgreeter.Helpers;
 
 public class GameRepository
 {
-  private readonly string _connectionString;
+  //I'm not sure if this is the best exception to throw
+  private readonly string _connectionString = 
+    Environment.GetEnvironmentVariable("MYSQL_CONNECTION_STRING")
+    ?? throw new InvalidOperationException("Connection string not set in environment variables.");
 
-  public GameRepository()
-  {
-    _connectionString = Environment.GetEnvironmentVariable("MYSQL_CONNECTION_STRING")
-                        ?? throw new InvalidOperationException("Connection string not set in environment variables.");
-  }
 
-  
   private IDbConnection Connection => new MySqlConnection(_connectionString);
 
   public async Task<IEnumerable<GameDto>> GetGamesWithRatingsAsync()
@@ -30,22 +24,21 @@ public class GameRepository
       SELECT 
         g.Id AS Id, g.Name AS Name, g.ReleaseDate AS ReleaseDate,
         p.Name AS Publisher, 
-        d.Name AS DevStudio, 
+        d.Name AS Developer, 
         GROUP_CONCAT(DISTINCT pl.Name) AS Platform,
         GROUP_CONCAT(DISTINCT gen.Name) AS Genre,
         AVG(r.Rating) AS AverageRating
       FROM Game g
       JOIN Publisher p ON g.PublisherId = p.Id
-      JOIN DevStudio d ON g.DevStudioId = d.Id
+      JOIN Developer d ON g.DeveloperId = d.Id
       JOIN Game_Platform gm ON g.Id = gm.GameId
       JOIN Platform pl ON gm.PlatformId = pl.Id
       JOIN Game_Genre gg ON g.Id = gg.GameId
       JOIN Genre gen ON gen.ID = gg.GenreId
       JOIN GameRating r ON g.Id = r.GameId
-      GROUP BY Id, Name, ReleaseDate, Publisher, DevStudio;
+      GROUP BY Id, Name, ReleaseDate, Publisher, Developer;
       ";
     using var db = Connection;
-
     var result = await db.QueryAsync<GameDto>(query);
     return result;
   }
@@ -72,80 +65,150 @@ public class GameRepository
 
   }
 
-  public async Task AddRatingAsync(GameRatingUpsertData rating)
+  public async Task<int> AddRatingAsync(GameRatingUpsertData rating)
   {
     using var db = Connection;
     var sql = @"
       INSERT INTO GameRating (GameId, Ip, Rating)
       VALUES (@GameId, @Ip, @Rating)";
 
-    await db.ExecuteAsync(sql, rating);
+    var addRatingResponse = await db.ExecuteAsync(sql, rating);
+    return addRatingResponse;
   }
 
-  public async Task UpdateRatingAsync(GameRatingUpsertData rating)
+  public async Task<int> UpdateRatingAsync(GameRatingUpsertData rating)
   {
     using var db = Connection;
     var sql = @"
       UPDATE GameRatingg 
       SET Rating = @Rating
       WHERE Ip = @Id";
-    await db.ExecuteAsync(sql, rating);
+    var updateResponse = await db.ExecuteAsync(sql, rating);
+    return updateResponse;
 
+  }
+  
+  
+  
+
+  private async Task<int> GetGameCountAsync()
+  {
+    using var db = Connection;
+    var gameCount = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM Game");
+    return gameCount;
+  }
+
+  private async Task<int> GetGameRatingCount()
+  {
+    using var db = Connection;
+    var gameRatingCount = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM GameRating");
+    return gameRatingCount;
+  }
+
+  private async Task<int> GetGamePlatformRelationCount()
+  {
+    using var db = Connection;
+    var gamePlatformRelationCount = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM Game_Platform");
+    return gamePlatformRelationCount;
+  }
+
+  private async Task<int> GetGameGenreRelationCount()
+  {
+    using var db = Connection;
+    var gameGenreRelationCount = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM Game_Genre");
+    return gameGenreRelationCount;
+  }
+
+  private async Task<List<int>> GetPublisherIdsAsync()
+  {
+    using var db = Connection;
+    var publisherIds = (await db.QueryAsync<int>("SELECT PublisherId FROM Publisher")).ToList();
+    return publisherIds;
+  }
+
+  private async Task<List<int>> GetDeveloperIdsAsync()
+  {
+    using var db = Connection;
+    var developerIds = (await db.QueryAsync<int>("SELECT Id FROM Developer")).ToList();  
+    return developerIds;
+  }
+
+  private async Task<List<int>> GetGameIdsAsync()
+  {
+    using var db = Connection;
+    var gameIds = (await db.QueryAsync<int>("SELECT Id FROM Game")).ToList();
+    return gameIds;
+  }
+
+  private async Task<List<int>> GetPlatformIdsAsync()
+  {
+    using var db = Connection;
+    var platformIds = (await db.QueryAsync<int>("SELECT Id FROM Platform")).ToList();
+    return platformIds;
+  }
+
+  private async Task<int> InsertGames(List<GameInsertData> games)
+  {
+    using var db = Connection;
+    var insertGames = @"
+      INSERT INTO Game (Name, ReleaseDate, PublisherId, DeveloperId) 
+      VALUES (@Name, @ReleaseDate, @PublisherId, @DeveloperId)";
+    var insertGamesResponse = await db.ExecuteAsync(insertGames, games);
+    return insertGamesResponse;
+  }
+
+  private async Task<int> InsertGameRatings(List<GameRatingUpsertData> ratings)
+  {
+    using var db = Connection;
+    var insertRatings = @"
+      INSERT INTO GameRating (GameId, Ip, Rating) 
+      VALUES (@GameId, @Ip, @Rating);";
+    var insertGameRatingsResponse = await db.ExecuteAsync(insertRatings, ratings);
+    return insertGameRatingsResponse;
   }
 
 
   public async Task SeedDatabaseAsync()
   {
     using var db = Connection;
-
-    // Seed data if table is empty
-    var fakeGameAmount = 100;
-
-    var gameCount = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM Game");
+    var gameCount = await GetGameCountAsync();
+    
     if (gameCount == 0)
     {
-      var publisherIds = (await db.QueryAsync<int>("SELECT Id FROM Publisher")).ToList();
-      var genreIds = (await db.QueryAsync<int>("SELECT Id FROM Genre")).ToList();
-      var platformIds = (await db.QueryAsync<int>("SELECT Id FROM Platform")).ToList();
-      var devStudioIds = (await db.QueryAsync<int>("SELECT Id FROM DevStudio")).ToList();
-
-
-
-
-
-      var gameFaker = new Faker<FakeGame>()
+      var publisherIds = await GetPublisherIdsAsync();
+      var developerIds = await GetDeveloperIdsAsync();
+      
+      var gameFaker = new Faker<GameInsertData>()
         .RuleFor(g => g.Name, f => f.Commerce.ProductName())
-        .RuleFor(g => g.ReleaseDate, f => f.Random.Int(1980, 2025))
+        .RuleFor(g => g.ReleaseDate, f => 
+            f.Random.Int(SeedDataConfig.MinReleaseDate, SeedDataConfig.MaxReleaseDate))
         .RuleFor(g => g.PublisherId, (f, g) => f.PickRandom(publisherIds))
-        .RuleFor(g => g.DevStudioId, (f, g) => f.PickRandom(devStudioIds));
+        .RuleFor(g => g.DeveloperId, (f, g) => f.PickRandom(developerIds));
 
-      var fakeGames = gameFaker.Generate(fakeGameAmount);
-
-      var insertGames = "INSERT INTO Game (Name, ReleaseDate, PublisherId, DevStudioId) VALUES (@Name, @ReleaseDate, @PublisherId, @DevStudioId)";
-      await db.ExecuteAsync(insertGames, fakeGames);
+      var fakeGames = gameFaker.Generate(SeedDataConfig.FakeGameAmount);
+      //TODO check for return value and throw an exception if it 0 even though FakeGameAmount is not 0
+      await InsertGames(fakeGames);
     }
 
 
-    var ratingsCount = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM GameRating");
-    if (ratingsCount == 0)
+    var ratingCount = await GetGameRatingCount();
+    if (ratingCount == 0)
     {
-      var gameIds = (await db.QueryAsync<uint>("SELECT Id FROM Game")).ToList();
+      var gameIds = await GetGameIdsAsync();
       var ratingFaker = new Faker<GameRatingUpsertData>()
-        .RuleFor(r => r.GameId, (f => f.PickRandom(gameIds))) 
+        .RuleFor(r => r.GameId, (f => f.PickRandom(gameIds)))
         .RuleFor(r => r.Ip, f => f.Internet.Ip())
-        .RuleFor(r => r.Rating, (f => (uint)f.Random.Int(1, 5)));
+        .RuleFor(r => r.Rating, (f => (uint)f.Random.Int(SeedDataConfig.MinRating, SeedDataConfig.MaxRating)));
 
-      var ratings = ratingFaker.Generate(1000);
-      var insertRatings = @"
-      INSERT INTO GameRating (GameId, Ip, Rating) VALUES (@GameId, @Ip, @Rating);";
-      await db.ExecuteAsync(insertRatings, ratings);
+      var ratings = ratingFaker.Generate(SeedDataConfig.FakeRatingAmount);
+      await InsertGameRatings(ratings);
     }
 
-    var gamePlatformCount = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM Game_Platform");
-    if (gamePlatformCount == 0)
+    var gamePlatformRelationCount = await GetGamePlatformRelationCount();
+    if (gamePlatformRelationCount == 0)
     {
-      var gameIds = (await db.QueryAsync<int>("SELECT Id FROM Game")).ToList();
-      var platformIds = (await db.QueryAsync<int>("SELECT Id FROM Platform")).ToList();
+      var gameIds = await GetGameIdsAsync();
+      var platformIds = GetPlatformIdsAsync();
 
       //Each game should have at least one platform to ensure this I'm using two fakers as a workaround.
       //the first one uses deterministic game ids, the second one random ones
@@ -154,7 +217,7 @@ public class GameRepository
       .RuleFor(gp => gp.GameId, f => gameIds[gameId++])
       .RuleFor(gp => gp.PlatformId, f => f.PickRandom(platformIds));
 
-      var deterministicFakeGamePlatformRelations = deterministicGamePlatformFaker.Generate(fakeGameAmount);
+      var deterministicFakeGamePlatformRelations = deterministicGamePlatformFaker.Generate(SeedDataConfig.FakeGameAmount);
       var deterministicInsert = "INSERT INTO Game_Platform (GameId, PlatformId) VALUES (@GameId, @PlatformId)";
       await db.ExecuteAsync(deterministicInsert, deterministicFakeGamePlatformRelations);
 
@@ -162,15 +225,15 @@ public class GameRepository
       .RuleFor(gp => gp.GameId, f => f.PickRandom(gameIds))
       .RuleFor(gp => gp.PlatformId, f => f.PickRandom(platformIds));
 
-      var randomFakeGamePlatformRelations = randomGamePlatformFaker.Generate(4 * fakeGameAmount);
+      var randomFakeGamePlatformRelations = randomGamePlatformFaker.Generate(SeedDataConfig.FakeGameRelationMultiplier * SeedDataConfig.FakeGameAmount);
       //Note to myself: REPLACE is MySQL-specific and NOT standard SQL, probably has to be changed upon db-switch
       var randomInsert = "REPLACE Game_Platform (GameId, PlatformId) VALUES (@GameId, @PlatformId)";
       await db.ExecuteAsync(randomInsert, randomFakeGamePlatformRelations);
 
     }
 
-    var gameGenreCount = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM Game_Genre");
-    if (gameGenreCount == 0)
+    var gameGenreRelationCount = await GetGameGenreRelationCount();
+    if (gameGenreRelationCount == 0)
     {
       var gameIds = (await db.QueryAsync<int>("SELECT Id FROM Game")).ToList();
       var genreIds = (await db.QueryAsync<int>("SELECT Id FROM Genre")).ToList();
@@ -182,7 +245,7 @@ public class GameRepository
       .RuleFor(gp => gp.GameId, f => gameIds[gameId++])
       .RuleFor(gp => gp.GenreId, f => f.PickRandom(genreIds));
 
-      var deterministicFakeGameGenreRelations = deterministicGameGenreFaker.Generate(fakeGameAmount);
+      var deterministicFakeGameGenreRelations = deterministicGameGenreFaker.Generate(SeedDataConfig.FakeGameAmount);
       var deterministicInsert = "INSERT INTO Game_Genre (GameID, GenreId) VALUES (@GameId, @GenreId)";
       await db.ExecuteAsync(deterministicInsert, deterministicFakeGameGenreRelations);
 
@@ -190,7 +253,7 @@ public class GameRepository
       .RuleFor(gp => gp.GameId, f => f.PickRandom(gameIds))
       .RuleFor(gp => gp.GenreId, f => f.PickRandom(genreIds));
 
-      var randomFakeGameGenreRelations = randomGameGenreFaker.Generate(4 * fakeGameAmount);
+      var randomFakeGameGenreRelations = randomGameGenreFaker.Generate(SeedDataConfig.FakeGameRelationMultiplier * SeedDataConfig.FakeGameAmount);
       //Note to myself: REPLACE is MySQL-specific and NOT standard SQL, probably has to be changed upon db-switch
       var randomInsert = "REPLACE Game_Genre (GameID, GenreId) VALUES (@GameId, @GenreId)";
       await db.ExecuteAsync(randomInsert, randomFakeGameGenreRelations);
