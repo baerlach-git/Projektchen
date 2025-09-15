@@ -21,6 +21,7 @@ public static class GameRepositoryHelpers
     
     public static async Task<int> InsertGames(IDbConnection db, List<GameInsertData> games)
     {
+        Console.WriteLine($"ConnectionString {db.ConnectionString}");
         var insertGames = @"
             INSERT INTO Game (Name, ReleaseDate, PublisherId, DeveloperId) 
             VALUES (@Name, @ReleaseDate, @PublisherId, @DeveloperId)";
@@ -37,7 +38,7 @@ public static class GameRepositoryHelpers
         return response;
     }
     
-    public static async Task<int> InsertGamePlatformRelations(IDbConnection db, List<IGameRelation>  relations)
+    public static async Task<int> InsertGamePlatformRelations(IDbConnection db, List<GameRelation>  relations)
     {
         var insert = @"
             INSERT INTO Game_Platform (GameId, PlatformId) 
@@ -46,7 +47,7 @@ public static class GameRepositoryHelpers
         return response;
     }
     
-    public static async Task<int> InsertGameGenreRelations(IDbConnection db, List<IGameRelation>  relations)
+    public static async Task<int> InsertGameGenreRelations(IDbConnection db, List<GameRelation>  relations)
     {
         var insert = @"
             INSERT INTO GGame_Genre (GameID, GenreId)

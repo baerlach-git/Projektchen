@@ -1,8 +1,9 @@
 ﻿using Grpc.Net.Client;
 using Grpc.Core;
 using GameServiceProtos;
-//server address http://188.245.118.112:5233
-var channel = GrpcChannel.ForAddress("http://localhost:5233", new GrpcChannelOptions
+//server address: http://188.245.118.112:5233
+//local address: http://localhost:5233
+var channel = GrpcChannel.ForAddress("http://188.245.118.112:5233", new GrpcChannelOptions
 {
     HttpHandler = new HttpClientHandler()
 });
@@ -23,7 +24,7 @@ foreach (var game in gamesReply.Games.Where(g => g.Id <= 5))
     Console.WriteLine(game);
 }
 
-var ratingReply = await gamesClient.AddRatingAsync(new GameRatingRequest { GameId = 1, Rating = 5 }, headers);
+var ratingReply = await gamesClient.AddRatingAsync(new GameRatingRequest { GameId = 1, Rating = 4 }, headers);
 Console.WriteLine("Ratingreply:");
 Console.WriteLine(ratingReply.Message);
 

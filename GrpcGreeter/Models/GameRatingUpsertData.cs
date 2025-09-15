@@ -1,7 +1,8 @@
 namespace GrpcGreeter.Models;
-public record GameRatingUpsertData
-(
-  uint GameId,
-  string Ip,
-  uint Rating
-);
+
+public class GameRatingUpsertData
+{
+    public int GameId  { get; set; }
+    public string Ip { get; set; }
+    public int Rating  { get; set; }
+}

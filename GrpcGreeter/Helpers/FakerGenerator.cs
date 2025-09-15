@@ -23,22 +23,23 @@ public static class FakerGenerator
     public static Faker<GameRatingUpsertData> GameRatingUpsertFaker(List<uint> gameIds)
     {
         return new Faker<GameRatingUpsertData>()
-            .RuleFor(r => r.GameId, (new Func<Faker, uint>(f => f.PickRandom(gameIds))))
+            .RuleFor(r => r.GameId, (new Func<Faker, int>(f => (int)f.PickRandom(gameIds))))
             .RuleFor(r => r.Ip, f => f.Internet.Ip())
-            .RuleFor(r => r.Rating, (f => (uint)f.Random.Int(SeedDataConfig.MinRating, SeedDataConfig.MaxRating)));
+            .RuleFor(r => r.Rating, (f => (int)f.Random.Int(SeedDataConfig.MinRating, SeedDataConfig.MaxRating)));
     }
     
-    public static Faker<IGameRelation> SemiDeterministicGameRelationFaker(List<uint> gameIds, List<uint> relatedTableIds)
+    public static Faker<GameRelation> SemiDeterministicGameRelationFaker(List<uint> gameIds, List<uint> relatedTableIds)
     {
+        Console.WriteLine($"game ids length: {gameIds.Count}");
         var gameId = 0;
-        return new Faker<IGameRelation>()
+        return new Faker<GameRelation>()
             .RuleFor(gp => gp.GameId, f => gameIds[gameId++])
             .RuleFor(gp => gp.RelatedTableId, f => f.PickRandom(relatedTableIds));
     }
     
-    public static Faker<IGameRelation> RandomPlatformRelationFaker(List<uint> gameIds, List<uint> relatedTableIds)
+    public static Faker<GameRelation> RandomPlatformRelationFaker(List<uint> gameIds, List<uint> relatedTableIds)
     {
-        return new Faker<IGameRelation>()
+        return new Faker<GameRelation>()
             .RuleFor(gp => gp.GameId, f => f.PickRandom(gameIds))
             .RuleFor(gp => gp.RelatedTableId, f => f.PickRandom(relatedTableIds));
     }

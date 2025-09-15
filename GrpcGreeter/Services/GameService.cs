@@ -48,11 +48,11 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
       }
 
       var rating = new GameRatingUpsertData
-      (
-        request.GameId,
-        clientIp,
-        request.Rating
-      );
+        {
+          GameId = (int)request.GameId,
+          Rating = (int)request.Rating,
+          Ip = clientIp,
+        };
 
       var ratingExists = await repo.RatingExistsAsync(request.GameId, clientIp);
       if (ratingExists)

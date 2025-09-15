@@ -1,8 +1,8 @@
 namespace GrpcGreeter.Models;
-public record GameInsertData
-(
-    string Name,
-    uint ReleaseDate,
-    uint PublisherId,
-    uint DeveloperId
-);
+public class GameInsertData
+{
+    public string Name  { get; set; }
+    public uint ReleaseDate  { get; set; }
+    public uint PublisherId   { get; set; }
+    public uint DeveloperId   { get; set; }
+}
