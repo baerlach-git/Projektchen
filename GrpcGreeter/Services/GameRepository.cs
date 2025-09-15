@@ -5,9 +5,7 @@ namespace GrpcGreeter.Services;
 using Dapper;
 using MySql.Data.MySqlClient;
 using System.Data;
-using Bogus;
 using Models;
-using FakerClasses;
 using Grpcgreeter.Helpers;
 
 public class GameRepository

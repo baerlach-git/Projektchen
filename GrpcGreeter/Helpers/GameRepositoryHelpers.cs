@@ -1,6 +1,5 @@
 using System.Data;
 using Dapper;
-using GrpcGreeter.FakerClasses;
 using GrpcGreeter.Models;
 
 namespace GrpcGreeter.Helpers;
