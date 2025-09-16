@@ -1,11 +1,11 @@
 namespace GrpcGreeter.Models;
 public record GameDto(
-    uint Id,
+    int Id,
     string Name,
-    ushort ReleaseDate,
+    int ReleaseDate,
     string Publisher,
     string Developer,
     string Platform,
     string Genre,
-    float AverageRating
+    decimal AverageRating
 );

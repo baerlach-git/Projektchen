@@ -42,7 +42,7 @@ public class GameRepository
     return result;
   }
 
-  public async Task<bool> GameExistsAsync(uint gameId)
+  public async Task<bool> GameExistsAsync(int gameId)
   {
     using var db = Connection;
     var sql = "SELECT COUNT(*) FROM Game WHERE Id = @Id";
@@ -50,7 +50,7 @@ public class GameRepository
     return result > 0;
   }
 
-  public async Task<bool> RatingExistsAsync(uint gameId, string Ip)
+  public async Task<bool> RatingExistsAsync(int gameId, string Ip)
   {
     using var db = Connection;
     var sql = @"
@@ -122,7 +122,7 @@ public class GameRepository
     {
       var seededGameGenreRelationsAmount = await DbSeeder.SeedGameGenreRelations(db);
       Console.WriteLine("" +
-        "Seeding database with game platform relations: {0} deterministic relations, {1} random relations", 
+        "Seeding database with game genre relations: {0} deterministic relations, {1} random relations", 
         seededGameGenreRelationsAmount.deterministicInsertResponse,  seededGameGenreRelationsAmount.randomInsertResponse);
     }
 

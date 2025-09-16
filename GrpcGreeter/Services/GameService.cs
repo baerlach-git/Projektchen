@@ -1,11 +1,9 @@
-using Google.Protobuf.Collections;
-
-namespace GrpcGreeter.Services;
-
 using Grpc.Core;
 using GameServiceProtos;
-using Models;
+using GrpcGreeter.Models;
 using Grpcgreeter.Helpers;
+
+namespace GrpcGreeter.Services;
 
 
 public class GameService(GameRepository repo) : GameServiceProtos.GameService.GameServiceBase

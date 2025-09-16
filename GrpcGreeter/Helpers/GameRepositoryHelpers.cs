@@ -7,15 +7,15 @@ namespace GrpcGreeter.Helpers;
 public static class GameRepositoryHelpers
 {
     
-    public static async Task<List<uint>> GetIdsAsync(IDbConnection db,string tableName)
+    public static async Task<List<int>> GetIdsAsync(IDbConnection db,string tableName)
     {
-        var ids = (await db.QueryAsync<uint>($"SELECT Id FROM {tableName}")).ToList();
+        var ids = (await db.QueryAsync<int>($"SELECT Id FROM {tableName}")).ToList();
         return ids;
     }
     
-    public static async Task<uint> GetCountAsync(IDbConnection db, string tableName)
+    public static async Task<int> GetCountAsync(IDbConnection db, string tableName)
     {
-        var count = await db.ExecuteScalarAsync<uint>($"SELECT COUNT(*) FROM {tableName}");
+        var count = await db.ExecuteScalarAsync<int>($"SELECT COUNT(*) FROM {tableName}");
         return count;
     }
     
@@ -40,8 +40,9 @@ public static class GameRepositoryHelpers
     
     public static async Task<int> InsertGamePlatformRelations(IDbConnection db, List<GameRelation>  relations)
     {
+        //Replace is MySql specific
         var insert = @"
-            INSERT INTO Game_Platform (GameId, PlatformId) 
+            REPLACE Game_Platform (GameId, PlatformId) 
             VALUES (@GameId, @RelatedTableId)";
         var response = await db.ExecuteAsync(insert, relations);
         return response;
@@ -50,7 +51,7 @@ public static class GameRepositoryHelpers
     public static async Task<int> InsertGameGenreRelations(IDbConnection db, List<GameRelation>  relations)
     {
         var insert = @"
-            INSERT INTO GGame_Genre (GameID, GenreId)
+            REPLACE Game_Genre (GameID, GenreId)
             VALUES (@GameId, @RelatedTableId)";
         var response = await db.ExecuteAsync(insert, relations);
         return response;

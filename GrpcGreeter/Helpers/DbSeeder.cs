@@ -44,11 +44,8 @@ public static class DbSeeder
         var randomGamePlatformFaker = FakerGenerator.RandomPlatformRelationFaker(gameIds, platformIds);
         var randomFakeGamePlatformRelations = 
             randomGamePlatformFaker.Generate(SeedDataConfig.FakeGameRelationMultiplier * SeedDataConfig.FakeGameAmount);
-        var relationsWithoutDuplicates = randomFakeGamePlatformRelations.Where(r => !deterministicFakeGamePlatformRelations.Contains(r)).ToList();
-        randomFakeGamePlatformRelations.AddRange(deterministicFakeGamePlatformRelations);
-        var test = randomFakeGamePlatformRelations.DistinctBy();
         var randomInsertResponse = 
-            await GameRepositoryHelpers.InsertGamePlatformRelations(db, relationsWithoutDuplicates);
+            await GameRepositoryHelpers.InsertGamePlatformRelations(db, randomFakeGamePlatformRelations);
         return (deterministicInsertResponse, randomInsertResponse);
     }
 
@@ -66,9 +63,8 @@ public static class DbSeeder
 
         var randomGameGenreFaker = FakerGenerator.RandomPlatformRelationFaker(gameIds, genreIds);
         var randomFakeGameGenreRelations = randomGameGenreFaker.Generate(SeedDataConfig.FakeGameRelationMultiplier * SeedDataConfig.FakeGameAmount);
-        var relationsWithoutDuplicates = randomFakeGameGenreRelations.Where(r => !deterministicFakeGameGenreRelations.Contains(r)).ToList();
 
-        var  randomInsertResponse = await GameRepositoryHelpers.InsertGameGenreRelations(db, relationsWithoutDuplicates);
+        var  randomInsertResponse = await GameRepositoryHelpers.InsertGameGenreRelations(db, randomFakeGameGenreRelations);
         return (deterministicInsertResponse, randomInsertResponse);
     }
     

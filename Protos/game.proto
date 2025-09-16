@@ -3,9 +3,9 @@ syntax = "proto3";
 option csharp_namespace = "GameServiceProtos";
 
 message Game {
-  uint32 id = 1;
+  int32 id = 1;
   string name = 2;
-  uint32 release_date = 3;
+  int32 release_date = 3;
   string publisher = 4;
   string dev_studio = 5;
   string platform = 6;

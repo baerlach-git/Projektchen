@@ -16,7 +16,7 @@ public static class Mapper
             DevStudio = gameDto.Developer,
             Platform = gameDto.Platform,
             Genre = gameDto.Genre,
-            AverageRating = gameDto.AverageRating,
+            AverageRating = (float)gameDto.AverageRating,
         };
     }
 }
