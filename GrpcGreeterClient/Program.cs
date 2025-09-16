@@ -25,7 +25,7 @@ foreach (var game in gamesReply.Games.Take(5))
     Console.WriteLine(game);
 }
 
-var ratingReply = await gamesClient.AddRatingAsync(new GameRatingRequest { GameId = 580, Rating = 4 }, headers);
+var ratingReply = await gamesClient.AddRatingAsync(new GameRatingRequest { GameId = 579, Rating = 4 }, headers);
 Console.WriteLine("Ratingreply:");
 Console.WriteLine(ratingReply.Message);
 

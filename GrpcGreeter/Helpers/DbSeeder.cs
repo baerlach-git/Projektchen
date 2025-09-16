@@ -27,6 +27,15 @@ public static class DbSeeder
         return response;
     }
 
+    public static async Task<int> SeedGameComments(IDbConnection db)
+    {
+        var gameIds = await GameRepositoryHelpers.GetIdsAsync(db, "Game");
+        var commentFaker = FakerGenerator.GameCommentFaker(gameIds);
+        var comments = commentFaker.Generate(SeedDataConfig.FakeCommentAmount);
+        var response = await GameRepositoryHelpers.InsertGameComments(db, comments);
+        return response;
+    }
+
     public static async Task<(int deterministicInsertResponse, int randomInsertResponse)> SeedGamePlatformRelations(
         IDbConnection db)
     {

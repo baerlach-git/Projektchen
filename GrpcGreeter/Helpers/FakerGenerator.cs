@@ -27,6 +27,18 @@ public static class FakerGenerator
             .RuleFor(r => r.Ip, f => f.Internet.Ip())
             .RuleFor(r => r.Rating, (f => (int)f.Random.Int(SeedDataConfig.MinRating, SeedDataConfig.MaxRating)));
     }
+
+    public static Faker<GameCommentUpsertData> GameCommentFaker(List<int> gameIds)
+    {
+        //workaround to have roughly one in ten comments be flagged as deleted
+        bool[] deleted = new bool[10];
+        deleted[0] = true;
+        return new Faker<GameCommentUpsertData>()
+            .RuleFor(r => r.GameId, f => f.PickRandom(gameIds))
+            .RuleFor(r => r.Content, f => new String(f.Rant.Review().Take(SeedDataConfig.MaxCommentLength).ToArray()))
+            .RuleFor(r => r.Ip, f => f.Internet.Ip())
+            .RuleFor(r=> r.Deleted, f => f.PickRandom(deleted));
+    }
     
     public static Faker<GameRelation> SemiDeterministicGameRelationFaker(List<int> gameIds, List<int> relatedTableIds)
     {

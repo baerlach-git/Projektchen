@@ -11,4 +11,5 @@ message Game {
   string platform = 6;
   string genre = 7;
   float average_rating = 8;
+  int32 comment_count = 9;
 };

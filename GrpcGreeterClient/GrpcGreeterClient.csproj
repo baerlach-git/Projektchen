@@ -23,7 +23,7 @@
     <Protobuf Include="..\Protos\game.proto" GrpcServices="Client" />
     <Protobuf Include="..\Protos\game_list.proto" GrpcServices="Client" />
     <Protobuf Include="..\Protos\game_rating_request.proto" GrpcServices="Client" />
-    <Protobuf Include="..\Protos\game_rating_response.proto" GrpcServices="Client" />
+    <Protobuf Include="..\Protos\response.proto" GrpcServices="Client" />
     <Protobuf Include="..\Protos\game_service.proto" GrpcServices="Client" />
 </ItemGroup>
 

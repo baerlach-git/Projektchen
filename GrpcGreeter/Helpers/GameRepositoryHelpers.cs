@@ -37,6 +37,15 @@ public static class GameRepositoryHelpers
         var response = await db.ExecuteAsync(insertRatings, ratings);
         return response;
     }
+
+    public static async Task<int> InsertGameComments(IDbConnection db, List<GameCommentUpsertData> comments)
+    {
+        var insertComments = @"
+            INSERT INTO GameComment (GameId, Ip, Content, Deleted)
+            VALUES (@GameId, @Ip, @Content, @Deleted);";
+        var response = await db.ExecuteAsync(insertComments, comments);
+        return response;
+    }
     
     public static async Task<int> InsertGamePlatformRelations(IDbConnection db, List<GameRelation>  relations)
     {

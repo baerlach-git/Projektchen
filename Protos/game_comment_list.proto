@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+import "game_comment.proto";
+
+option csharp_namespace = "GameServiceProtos";
+
+message GameCommentList {
+  repeated GameComment gameComments = 1;
+}

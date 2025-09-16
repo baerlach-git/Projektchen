@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option csharp_namespace = "GameServiceProtos";
 
-message GameRatingResponse {
+message Response {
   bool success = 1;
   string message = 2;
 }

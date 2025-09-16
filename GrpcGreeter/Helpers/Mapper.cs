@@ -17,6 +17,22 @@ public static class Mapper
             Platform = gameDto.Platform,
             Genre = gameDto.Genre,
             AverageRating = (float)gameDto.AverageRating,
+            CommentCount = (int)gameDto.CommentCount,
+        };
+    }
+
+    public static GameComment MapToGameComment(this GameCommentDto comment)
+    {
+        return new GameComment
+        {
+            Id = comment.Id,
+            GameId = comment.GameId,
+            ParentId = comment.ParentId,
+            Content = comment.Content,
+            Deleted = comment.Deleted,
+            Edited = comment.Edited,
+            CreatedAt = comment.CreatedAt,
+            UpdatedAt = comment.UpdatedAt,
         };
     }
 }
