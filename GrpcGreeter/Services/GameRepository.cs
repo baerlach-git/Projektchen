@@ -44,14 +44,6 @@ public class GameRepository
     var result = await db.QueryAsync<GameDto>(query);
     return result;
   }
-
-  //int Id,
-  // int GameId,
-  // int? ParentId,
-  // string Ip,
-  // string Content, 
-  // bool Deleted,
-  // bool Edited
   public async Task<IEnumerable<GameCommentDto>> GetGameCommentsForGameAsync(int gameId)
   {
     using var db = Connection;

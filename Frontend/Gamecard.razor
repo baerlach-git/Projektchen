@@ -1,0 +1,30 @@
+@using GameServiceProtos
+<h3>Gamecard</h3>
+
+
+<div style="border: black 1em; border-radius: 0.5%">
+    <span>
+        @game.Name (@game.ReleaseDate)
+    </span>
+    <span>
+        Genre: @game.Genre
+    </span>
+    <span>
+        Platform: @game.Platform
+    </span>
+    <span>
+        @game.Publisher @game.DevStudio
+    </span>
+    <span>
+        @game.AverageRating @game.CommentCount
+    </span>
+    <span>
+        
+    </span>
+</div>
+
+@code {
+
+    Game game;
+
+}
