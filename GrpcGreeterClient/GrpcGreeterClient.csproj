@@ -18,13 +18,8 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Protobuf Include="..\Protos\empty_message.proto" GrpcServices="Client" />
-    <Protobuf Include="..\Protos\game.proto" GrpcServices="Client" />
-    <Protobuf Include="..\Protos\game_list.proto" GrpcServices="Client" />
-    <Protobuf Include="..\Protos\game_rating_request.proto" GrpcServices="Client" />
-    <Protobuf Include="..\Protos\response.proto" GrpcServices="Client" />
-    <Protobuf Include="..\Protos\game_service.proto" GrpcServices="Client" />
+<ItemGroup>
+    <Protobuf Include="..\Protos\*.proto" GrpcServices="Client" />
 </ItemGroup>
 
 <PropertyGroup>

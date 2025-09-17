@@ -1,3 +1,5 @@
+using Google.Protobuf.WellKnownTypes;
+
 namespace Grpcgreeter.Helpers;
 
 using GameServiceProtos;
@@ -31,8 +33,8 @@ public static class Mapper
             Content = comment.Content,
             Deleted = comment.Deleted,
             Edited = comment.Edited,
-            CreatedAt = comment.CreatedAt,
-            UpdatedAt = comment.UpdatedAt,
+            CreatedAt = comment.CreatedAt.ToTimestamp(),
+            UpdatedAt = comment.UpdatedAt.ToTimestamp(),
         };
     }
 }

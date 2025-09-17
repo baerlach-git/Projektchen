@@ -1,9 +1,9 @@
 using Grpc.Core;
 using GameServiceProtos;
 using Google.Protobuf.WellKnownTypes;
-using GrpcGreeter.Models;
 using Grpcgreeter.Helpers;
 using GrpcGreeter.Helpers;
+using GrpcGreeter.Models;
 
 namespace GrpcGreeter.Services;
 
@@ -70,10 +70,6 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
       throw new RpcException(new Status(StatusCode.Internal, "Rating insert/update failed"));
     }
   }
-  
-  // rpc DeleteGameComment (DeleteGameCommentRequest) returns (Response);
-  // rpc UpdateGameComment (UpdateGameCommentRequest) returns (Response);
-  // rpc GetAllCommentsForGame (GetAllCommentsForGameRequest) returns (GameCommentList);
 
   public override async Task<Response> AddGameComment(AddGameCommentRequest request, ServerCallContext context)
   {

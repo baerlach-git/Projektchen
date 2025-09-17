@@ -154,7 +154,7 @@ public class GameRepository
   {
     using var db = Connection;
     var sql = @"
-      INSERT INTO GameComment (GameId, ParantId, Ip, Content )
+      INSERT INTO GameComment (GameId, ParentId, Ip, Content )
       VALUES (@GameId, @ParentId, @Ip, @Content)";
 
     var response = await db.ExecuteAsync(sql, comment);
