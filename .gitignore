@@ -2,4 +2,6 @@
 /GrpcGreeter/obj
 /GrpcGreeterClient/bin
 /GrpcGreeterClient/obj
+/Frontend/bin
+/Frontend/obj
 /.vs
