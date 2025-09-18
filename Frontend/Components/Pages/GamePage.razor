@@ -1,0 +1,94 @@
+@page "/GamePage"
+@using GameServiceProtos
+@using Grpc.Core
+@rendermode InteractiveServer
+@inject GameService.GameServiceClient GameClient
+@inject IHttpContextAccessor HttpContextAccessor
+
+
+<h3>GamePage</h3>
+<h2>@ip</h2>)
+<h2>@GameId</h2>
+
+
+@if (_gameInfo == null || _comments == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+               
+               
+    <div>
+        <Gamecard Game="_gameInfo"></Gamecard>
+        <div>
+            <h3>Your Rating: @_userRating</h3>
+            <h2>current Rating @_currentRating</h2>
+            @for (int i = 1; i <= 5; i++)
+            {
+                int ratingValue = i;
+                <button style="" @onclick="()=>RateGame(ratingValue)">@ratingValue</button>
+            }
+        </div>
+        <div style="width: 100%; display: grid; grid-template-columns: 40% 40%; column-gap: 2%; grid-auto-rows: min-content">
+            @foreach (var c in _comments)
+            {
+                <CommentCard Comment="c"></CommentCard>
+            }
+           
+        </div>
+    </div>
+    
+    
+               
+}
+
+
+
+
+@code {
+
+    [Parameter, SupplyParameterFromQuery(Name="Id")] 
+    public required int GameId { get; set; }
+
+    string ip = "::ffff:172.18.0.1";
+    List<GameComment>? _comments;
+    Game? _gameInfo;
+    int? _userRating;
+
+    int _currentRating = 1;
+
+
+    private async Task RateGame(int rating)
+    {
+        _currentRating = rating;
+        await GameClient.AddRatingAsync(new GameRatingRequest { GameId = GameId, Rating = rating }, _headers);
+    }
+    
+    readonly Metadata _headers = new()
+    {
+        { "x-api-key", "vwznnZRX1uX5dLDzw2RqGN1UevEHFoJjUGT6qcOCPLCLCa29VAlhBvbnpLA5fMBm" }
+    };
+    protected override async Task OnInitializedAsync()
+    {
+        //ip = HttpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.MapToIPv6().ToString() ?? "unknown ip";
+        var response = await GameClient.GetGameWithCommentsAndRatingAsync(new GameWithCommentsAndRatingRequest { GameId = GameId, UserIp = ip }, _headers);
+        _comments = response.Comments.ToList();
+       
+        _userRating = response.UserRating;
+        _gameInfo = new Game
+        {
+            Name = response.Name,
+            Id = response.Id,
+            ReleaseDate = response.ReleaseDate,
+            Publisher = response.Publisher,
+            DevStudio = response.DevStudio,
+            Genre = response.Genre,
+            Platform = response.Platform,
+            AverageRating = response.AverageRating,
+            CommentCount = _comments.Count
+        };
+        
+    }
+    
+}

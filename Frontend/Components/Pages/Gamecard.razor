@@ -1,0 +1,43 @@
+@using GameServiceProtos
+
+@if(@Game == null)
+{
+    {
+        <p><em>Loading...</em></p>
+    }
+}
+<div style="display: flex; flex-flow: column nowrap; border: black 2px solid; border-radius: 1em; margin: 1em; padding: 1em; height: 11em; width:100%;">
+    <h3>@Game?.Name (@Game?.ReleaseDate)</h3>
+
+    <div>
+        <div style="display: flex; flex-flow: row nowrap; justify-content: space-between; width: 100%;">
+            <div style="display: flex; flex-flow: column nowrap;">
+                <span>@Game?.AverageRating</span>
+                <span>@Game?.CommentCount</span>    
+            </div>
+        
+            <div style="display: flex; flex-flow: column nowrap;">
+                <span>@Game?.Genre</span>
+                <span>@Game?.Platform</span>
+            </div>
+        </div>
+        <div style="display: flex; flex-flow: row nowrap; justify-content: flex-start; width: 100%;">
+            <div style="display: flex; flex-flow: column nowrap">
+                <span>
+                    Publisher: @Game?.Publisher 
+                </span>
+    
+                <span>
+                    Developer: @Game?.DevStudio
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public GameServiceProtos.Game? Game { get; set; }
+
+}

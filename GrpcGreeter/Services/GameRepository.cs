@@ -44,6 +44,47 @@ public class GameRepository
     var result = await db.QueryAsync<GameDto>(query);
     return result;
   }
+  
+  public async Task<GameDto> GetGameWithRatingsAsync(int gameId)
+  {
+    var query = @"
+      SELECT
+        g.Id AS Id, g.Name AS Name, g.ReleaseDate AS ReleaseDate,
+        p.Name AS Publisher,
+        d.Name AS Developer,
+        GROUP_CONCAT(DISTINCT pl.Name) AS Platform,
+        GROUP_CONCAT(DISTINCT gen.Name) AS Genre,
+        AVG(r.Rating) AS AverageRating,
+        COUNT(DISTINCT c.Id) AS CommentCount
+      FROM Game g
+        JOIN Publisher p ON g.PublisherId = p.Id
+        JOIN Developer d ON g.DeveloperId = d.Id
+        JOIN Game_Platform gm ON g.Id = gm.GameId
+        JOIN Platform pl ON gm.PlatformId = pl.Id
+        JOIN Game_Genre gg ON g.Id = gg.GameId
+        JOIN Genre gen ON gen.ID = gg.GenreId
+        JOIN GameRating r ON g.Id = r.GameId
+        JOIN GameComment c ON g.Id = c.GameId WHERE c.Deleted = 0
+        AND g.Id = @gameId
+        GROUP BY Id, Name, ReleaseDate, Publisher, Developer;
+      ";
+    using var db = Connection;
+    var result = await db.QueryFirstAsync<GameDto>(query, new { gameId });
+    return result;
+  }
+
+  public async Task<int?> GetUserRatingAsync(int gameId, string userIp)
+  {
+    var sql = @"
+      SELECT Rating
+      FROM GameRating
+      WHERE GameId = @gameId AND Ip = @userIp
+    ";
+    using var db = Connection;
+    return await db.QueryFirstAsync<int?>(sql, new { gameId, userIp });
+  }
+  
+  
   public async Task<IEnumerable<GameCommentDto>> GetGameCommentsForGameAsync(int gameId)
   {
     using var db = Connection;

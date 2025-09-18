@@ -1,0 +1,26 @@
+@using GameServiceProtos
+
+@if(Comment == null)
+{
+    {
+        <p><em>Loading...</em></p>
+    }
+}
+<div style="display: flex; flex-flow: column nowrap; border: black 2px solid; border-radius: 1em; margin: 1em; padding: 1em; height: 11em; width:100%;">
+    <h3>@Comment.Ip (@Comment.CreatedAt)</h3>
+    <div>
+        <span>
+            @(Comment.Edited ? $"Edited at {Comment.UpdatedAt}" : "")
+        </span>
+    </div>
+    <div>
+        <text>@Comment.Content</text>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public required GameComment Comment { get; set; }
+
+}

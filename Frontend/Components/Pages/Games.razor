@@ -1,0 +1,84 @@
+@using GameServiceProtos
+@using Grpc.Core
+@page "/games"
+@rendermode InteractiveServer
+@inject GameService.GameServiceClient GameClient
+
+<h3>GamePages</h3>
+
+
+@if (_gameList == null || _currentPage == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    
+    <div>
+        <div style="width: 100%; display: grid; grid-template-columns: 40% 40%; column-gap: 2%; grid-auto-rows: min-content">
+            @foreach (var g in _currentPage)
+            {
+                <Gamecard Game="g"></Gamecard>
+            }
+        
+        </div>
+        <div style="width: 4%; margin-left: 40%; margin-right: 40%; display: flex; flex-flow: row nowrap; justify-content: center;">
+            <div style="width: 3em; display: flex; justify-content: space-around; flex-flow: row nowrap">
+                <button style="margin-left: 1em; margin-right: 1em;" @onclick="PreviousPage">-</button>
+                <span> @(_currentPageIndex + 1)</span>
+                <button style="margin-left: 1em; margin-right: 1em;" @onclick="NextPage">+</button>
+            </div>
+        </div>
+    </div>
+    
+}
+
+@code {
+    private GameList? _gameList;
+
+    private List<GameServiceProtos.Game[]>? _pages;
+    private GameServiceProtos.Game[]? _currentPage;
+    private int _currentPageIndex;
+    private int _maxPageIndex;
+
+
+     public void NextPage()
+    {
+        if (_currentPageIndex + 1 >= _maxPageIndex)
+        {
+            return;
+        }
+
+
+        _currentPageIndex++;
+        _currentPage = _pages?[_currentPageIndex] ;
+    }
+
+     public void PreviousPage()
+    {
+        if (_currentPageIndex - 1 < 0)
+        {
+            return;
+        }
+        
+
+        _currentPageIndex--;
+        _currentPage = _pages?[_currentPageIndex];
+    }
+
+
+    readonly Metadata _headers = new()
+    {
+        { "x-api-key", "vwznnZRX1uX5dLDzw2RqGN1UevEHFoJjUGT6qcOCPLCLCa29VAlhBvbnpLA5fMBm" }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        _gameList = await GameClient.GetGamesAsync(new EmptyMessage { }, _headers);
+        _pages = _gameList.Games.Chunk(20).ToList();
+        _maxPageIndex = _pages.Count();
+        _currentPageIndex = 0;
+        _currentPage = _pages[_currentPageIndex];
+    }
+
+}

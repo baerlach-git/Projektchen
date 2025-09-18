@@ -18,6 +18,12 @@
 
     <ItemGroup>
         <Protobuf Include="..\Protos\*.proto" GrpcServices="Client" />
+        <Protobuf Update="..\Protos\game_request.proto">
+          <Link>Protos\game_request.proto</Link>
+        </Protobuf>
+        <Protobuf Update="..\Protos\game_with_comments_and_rating.proto">
+          <Link>Protos\game_with_comments_and_rating.proto</Link>
+        </Protobuf>
     </ItemGroup>
 
 </Project>

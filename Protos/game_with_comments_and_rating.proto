@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+import "game_comment.proto";
+import "google/protobuf/wrappers.proto";
+
+
+option csharp_namespace = "GameServiceProtos";
+
+message GameWithCommentsAndRating {
+  int32 id = 1;
+  string name = 2;
+  int32 release_date = 3;
+  string publisher = 4;
+  string dev_studio = 5;
+  string platform = 6;
+  string genre = 7;
+  float average_rating = 8;
+  google.protobuf.Int32Value user_rating = 9;
+  repeated GameComment comments  = 10;
+};

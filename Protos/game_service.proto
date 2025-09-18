@@ -1,8 +1,11 @@
 syntax = "proto3";
 
 import "empty_message.proto";
+import "game.proto";
 import "game_list.proto";
 import "game_rating_request.proto";
+import "game_with_comments_and_rating.proto";
+import "game_with_comments_and_rating_request.proto";
 import "response.proto";
 import "add_game_comment_request.proto";
 import "delete_game_comment_request.proto";
@@ -15,6 +18,7 @@ option csharp_namespace = "GameServiceProtos";
 
 service GameService {
   rpc GetGames (EmptyMessage) returns (GameList);
+  rpc GetGameWithCommentsAndRating(GameWithCommentsAndRatingRequest) returns (GameWithCommentsAndRating);
   rpc AddRating (GameRatingRequest) returns (Response);
   
   rpc AddGameComment (AddGameCommentRequest) returns (Response);

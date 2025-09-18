@@ -1,5 +1,6 @@
 using Frontend.Components;
 using GameServiceProtos;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddRazorComponents()
     .AddInteractiveServerComponents();
+
+//Needed to access http headers and thus ip addresses
+builder.Services.AddHttpContextAccessor();
+//not really necessary in this case, only needed when deploying on remote containers like azure containers and
+//running multiple instances of the server app on several containers at once
+builder.Services.AddDataProtection();
 
 builder.Services.AddGrpcClient<GameService.GameServiceClient>(o =>
 {
@@ -22,6 +29,14 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+/*var headerOptions = new ForwardedHeadersOptions
+{
+	ForwardedHeaders = ForwardedHeaders.All
+};
+headerOptions.KnownNetworks.Clear();
+headerOptions.KnownProxies.Clear();
+app.UseForwardedHeaders(headerOptions);
+*/
 app.UseHttpsRedirection();
 
 

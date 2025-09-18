@@ -26,6 +26,31 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
       throw new RpcException(new Status(StatusCode.Internal, "games could not be fetched"));
     }
   }
+  public override async Task<GameWithCommentsAndRating> GetGameWithCommentsAndRating(GameWithCommentsAndRatingRequest request, ServerCallContext context)
+  {
+    
+    
+    var game = await repo.GetGameWithRatingsAsync(request.GameId);//contains commentCount which isnt used
+    var comments = await repo.GetGameCommentsForGameAsync(request.GameId);
+    var rating = await repo.GetUserRatingAsync(request.GameId, request.UserIp);
+    Console.WriteLine($"comment count: {comments.Count()}");
+
+    var response = new GameWithCommentsAndRating
+    {
+      Id = game.Id,
+      Name = game.Name,
+      ReleaseDate = game.ReleaseDate,
+      Publisher = game.Publisher,
+      DevStudio = game.Developer,
+      Platform = game.Platform,
+      Genre = game.Genre,
+      AverageRating = (float)game.AverageRating,
+      UserRating = rating,
+      Comments = { comments.Select(c => c.MapToGameComment()) },
+    };
+    return response;
+  }
+
 
   public override async Task<Response> AddRating(GameRatingRequest request, ServerCallContext context)
   {
@@ -37,8 +62,8 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
 
       var rating = new GameRatingUpsertData
         {
-          GameId = (int)request.GameId,
-          Rating = (int)request.Rating,
+          GameId = request.GameId,
+          Rating = request.Rating,
           Ip = clientIp,
         };
 
