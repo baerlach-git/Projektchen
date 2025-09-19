@@ -30,7 +30,7 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
   {
     
     
-    var game = await repo.GetGameWithRatingsAsync(request.GameId);//contains commentCount which isnt used
+    var game = await repo.GetGameWithRatingsAsync(request.GameId);//contains commentCount which isn't used
     var comments = await repo.GetGameCommentsForGameAsync(request.GameId);
     var rating = await repo.GetUserRatingAsync(request.GameId, request.UserIp);
     Console.WriteLine($"comment count: {comments.Count()}");
@@ -199,6 +199,32 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
     var gameCommentList = gameCommentDtos.Select(gc => gc.MapToGameComment());
     var response = new GameCommentList{GameComments = {gameCommentList}};
     return response;
+  }
+
+  public override async Task<GameCreationPresets> GetGameCreationPresets(EmptyMessage request, ServerCallContext context)
+  {
+    var developerDtos = await repo.GetAllDevelopersAsync();
+    var publisherDtos = await repo.GetAllPublishersAsync();
+    var genreDtos =  await repo.GetAllGenresAsync();
+    var platformDtos = await repo.GetAllPlatformsAsync();
+    
+    var developers = developerDtos.Select(d => d.MapToDeveloper());
+    var publishers = publisherDtos.Select(d => d.MapToPublisher());
+    var genres =  genreDtos.Select(d => d.MapToGenre());
+    var platforms = platformDtos.Select(d => d.MapToPlatform());
+
+    var response = new GameCreationPresets
+    {
+      Developers = { developers },
+      Publishers = { publishers },
+      Genres = { genres },
+      Platforms = { platforms }
+    };
+    
+    return response;
+
+
+
   }
 
 

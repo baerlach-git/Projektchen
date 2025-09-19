@@ -206,6 +206,46 @@ public class GameRepository
 
   }
 
+  public async Task<IEnumerable<NameIdDto>>GetAllGenresAsync()
+  {
+    using var db = Connection;
+    var sql = @"
+      SELECT Id, Name
+      FROM Genre;
+    ";
+    return await db.QueryAsync<NameIdDto>(sql);
+  }
+  
+  public async Task<IEnumerable<NameIdDto>>GetAllPlatformsAsync()
+  {
+    using var db = Connection;
+    var sql = @"
+      SELECT Id, Name
+      FROM Platform;
+    ";
+    return await db.QueryAsync<NameIdDto>(sql);
+  }
+  
+  public async Task<IEnumerable<NameIdDto>>GetAllPublishersAsync()
+  {
+    using var db = Connection;
+    var sql = @"
+      SELECT Id, Name
+      FROM Publisher;
+    ";
+    return await db.QueryAsync<NameIdDto>(sql);
+  }
+  
+  public async Task<IEnumerable<NameIdDto>>GetAllDevelopersAsync()
+  {
+    using var db = Connection;
+    var sql = @"
+      SELECT Id, Name
+      FROM Developer;
+    ";
+    return await db.QueryAsync<NameIdDto>(sql);
+  }
+
   public async Task SeedDatabaseAsync()
   {
     using var db = Connection;

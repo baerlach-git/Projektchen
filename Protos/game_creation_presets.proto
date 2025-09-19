@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "developer.proto";
+import "genre.proto";
+import "platform.proto";
+import "publisher.proto";
+
+
+option csharp_namespace = "GameServiceProtos";
+
+message GameCreationPresets {
+  repeated Developer developers = 1;
+  repeated Publisher publishers = 2;
+  repeated Genre genres = 3;
+  repeated Platform platforms = 4;
+};

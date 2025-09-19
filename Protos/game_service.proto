@@ -12,6 +12,7 @@ import "delete_game_comment_request.proto";
 import "update_game_comment_request.proto";
 import "get_all_comments_for_game_request.proto";
 import "game_comment_list.proto";
+import "game_creation_presets.proto";
 
 
 option csharp_namespace = "GameServiceProtos";
@@ -20,6 +21,8 @@ service GameService {
   rpc GetGames (EmptyMessage) returns (GameList);
   rpc GetGameWithCommentsAndRating(GameWithCommentsAndRatingRequest) returns (GameWithCommentsAndRating);
   rpc AddRating (GameRatingRequest) returns (Response);
+  
+  rpc GetGameCreationPresets (EmptyMessage) returns (GameCreationPresets);
   
   rpc AddGameComment (AddGameCommentRequest) returns (Response);
   rpc DeleteGameComment (DeleteGameCommentRequest) returns (Response);
