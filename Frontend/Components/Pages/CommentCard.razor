@@ -1,4 +1,7 @@
 @using GameServiceProtos
+@using Grpc.Core
+@rendermode InteractiveServer
+@inject GameService.GameServiceClient GameService
 
 @if(Comment == null)
 {
@@ -14,13 +17,90 @@
         </span>
     </div>
     <div>
-        <text>@Comment.Content</text>
+        @if (_isReadOnly)
+        {
+            <text>@text</text>
+        }
+        else
+        {
+            <textarea @bind="text">@text</textarea>
+        }
     </div>
+    <div style="flex-flow: row nowrap">
+        <div>
+            <button @onclick="ToggleReadOnly">@editButtonName</button>
+        </div>
+        <div>
+            <button @onclick="DeleteComment">Delete Comment</button>
+        </div>
+    
+        <div>
+            @if (_wasEdited)
+            {
+                <button @onclick="SaveEdit">Save Edit</button>
+            }
+        </div>
+    </div>
+    <div>
+        <span>@responseText</span>
+    </div>
+    
 </div>
 
 
 @code {
     [Parameter]
     public required GameComment Comment { get; set; }
+    
+    private bool _isReadOnly = true;
+    private bool _wasEdited;
+
+    private string text;
+    
+    private string editButtonName = "Edit";
+    
+    private string responseText = "";
+
+    private void ToggleReadOnly()
+    {
+        _isReadOnly = !_isReadOnly;
+    }
+    
+    readonly Metadata _headers = new()
+    {
+        { "x-api-key", "vwznnZRX1uX5dLDzw2RqGN1UevEHFoJjUGT6qcOCPLCLCa29VAlhBvbnpLA5fMBm" }
+    };
+
+    private async Task SaveEdit()
+    {
+        var updateResponse = await GameService.UpdateGameCommentAsync(new UpdateGameCommentRequest { CommentId = Comment.Id, Content = text }, _headers);
+
+        responseText = updateResponse.Message;
+    }
+    
+    private async Task DeleteComment()
+    {
+        var deleteResponse = await GameService.DeleteGameCommentAsync(new DeleteGameCommentRequest { CommentId = Comment.Id, ParentId = Comment.ParentId }, _headers);
+        
+        responseText = deleteResponse.Message;
+    }
+    
+
+
+    protected override void OnParametersSet()
+    {
+        text = Comment.Content;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        editButtonName = _isReadOnly ? "Edit" : "Stop Editing";
+
+        if (text != Comment.Content)
+        {
+            _wasEdited =  true;
+        }
+    }
+
 
 }

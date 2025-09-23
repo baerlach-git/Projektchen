@@ -1,4 +1,4 @@
-@page "/GamePage"
+@page "/Game"
 @using GameServiceProtos
 @using Grpc.Core
 @rendermode InteractiveServer
@@ -21,16 +21,23 @@ else
                
     <div>
         <Gamecard Game="_gameInfo"></Gamecard>
-        <div>
-            <h3>Your Rating: @_userRating</h3>
-            <h2>current Rating @_currentRating</h2>
-            @for (int i = 1; i <= 5; i++)
-            {
-                int ratingValue = i;
-                <button style="" @onclick="()=>RateGame(ratingValue)">@ratingValue</button>
-            }
+        <div style="display:flex; flex-flow: row nowrap">
+            <div>
+                <h3>Your Rating: @_userRating</h3>
+                <h2>current Rating @_currentRating</h2>
+                @for (int i = 1; i <= 5; i++)
+                {
+                    int ratingValue = i;
+                    <button style="" @onclick="(async ()=>await RateGame(ratingValue))">@ratingValue</button>
+                }
+            </div>
+            <div style="display: flex; flex-flow: column nowrap; border: black 2px solid; border-radius: 1em; margin: 1em; padding: 1em; height: 11em; width:100%;">
+                <h3>Neuer Kommentar</h3>
+                <textarea @bind="_newComment"></textarea>
+                <button @onclick="AddComment">Kommentar Speichern</button>
+            </div>
         </div>
-        <div style="width: 100%; display: grid; grid-template-columns: 40% 40%; column-gap: 2%; grid-auto-rows: min-content">
+            <div style="width: 100%; display: grid; grid-template-columns: 40% 40%; column-gap: 2%; grid-auto-rows: min-content">
             @foreach (var c in _comments)
             {
                 <CommentCard Comment="c"></CommentCard>
@@ -44,8 +51,6 @@ else
 }
 
 
-
-
 @code {
 
     [Parameter, SupplyParameterFromQuery(Name="Id")] 
@@ -57,22 +62,17 @@ else
     int? _userRating;
 
     int _currentRating = 1;
-
-
-    private async Task RateGame(int rating)
-    {
-        _currentRating = rating;
-        await GameClient.AddRatingAsync(new GameRatingRequest { GameId = GameId, Rating = rating }, _headers);
-    }
     
-    readonly Metadata _headers = new()
+    string _newComment = "";
+
+    private async Task AddComment()
     {
-        { "x-api-key", "vwznnZRX1uX5dLDzw2RqGN1UevEHFoJjUGT6qcOCPLCLCa29VAlhBvbnpLA5fMBm" }
-    };
-    protected override async Task OnInitializedAsync()
+        await GameClient.AddGameCommentAsync(new AddGameCommentRequest { Content = _newComment, GameId = GameId }, _headers);
+    }
+
+    private async Task RefreshData()
     {
-        //ip = HttpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.MapToIPv6().ToString() ?? "unknown ip";
-        var response = await GameClient.GetGameWithCommentsAndRatingAsync(new GameWithCommentsAndRatingRequest { GameId = GameId, UserIp = ip }, _headers);
+        var response = await GameClient.GetGameWithCommentsAndRatingAsync(new GameWithCommentsAndRatingRequest { GameId = GameId}, _headers);
         _comments = response.Comments.ToList();
        
         _userRating = response.UserRating;
@@ -88,7 +88,27 @@ else
             AverageRating = response.AverageRating,
             CommentCount = _comments.Count
         };
-        
+    }
+
+
+    private async Task RateGame(int rating)
+    {
+        _currentRating = rating;
+        await GameClient.AddRatingAsync(new GameRatingRequest { GameId = GameId, Rating = rating }, _headers);
+        await RefreshData();
+        //StateHasChanged();
     }
     
+    readonly Metadata _headers = new()
+    {
+        { "x-api-key", "vwznnZRX1uX5dLDzw2RqGN1UevEHFoJjUGT6qcOCPLCLCa29VAlhBvbnpLA5fMBm" }
+    };
+    protected override async Task OnInitializedAsync()
+    {
+        ip = HttpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.MapToIPv4().ToString() ?? "unknown ip";
+
+        await RefreshData();
+
+    }
+
 }
