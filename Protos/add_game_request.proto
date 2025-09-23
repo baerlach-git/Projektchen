@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+import "id_name_object.proto";
+
+option csharp_namespace = "GameServiceProtos";
+
+message AddGameRequest {
+  string name = 1;
+  int32 release_date = 2;
+  int32 publisher_id = 3;
+  int32 developer_id = 4;
+  repeated int32 platform_ids = 5;
+  repeated int32 genre_ids = 6;
+};

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+import "id_name_object.proto";
+
+option csharp_namespace = "GameServiceProtos";
+
+message UpdateGameRequest {
+  int32 game_id = 1;
+  string name = 2;
+  int32 release_date = 3;
+  int32 publisher_id = 4;
+  int32 developer_id = 5;
+  repeated int32 platform_ids = 6;
+  repeated int32 genre_ids = 7;
+};

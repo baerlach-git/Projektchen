@@ -4,6 +4,7 @@ using Google.Protobuf.WellKnownTypes;
 using Grpcgreeter.Helpers;
 using GrpcGreeter.Helpers;
 using GrpcGreeter.Models;
+using MySqlX.XDevAPI.Relational;
 
 namespace GrpcGreeter.Services;
 
@@ -31,9 +32,11 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
     
     
     var game = await repo.GetGameWithRatingsAsync(request.GameId);//contains commentCount which isn't used
-    var comments = await repo.GetGameCommentsForGameAsync(request.GameId);
-    var rating = await repo.GetUserRatingAsync(request.GameId, request.UserIp);
-    Console.WriteLine($"comment count: {comments.Count()}");
+    var commentDtos = await repo.GetGameCommentsForGameAsync(request.GameId);
+    var clientIp = GetClientIp(context);
+    
+    var rating = await repo.GetUserRatingAsync(request.GameId, clientIp);
+    Console.WriteLine($"comment count: {commentDtos.Count()}");
 
     var response = new GameWithCommentsAndRating
     {
@@ -46,9 +49,89 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
       Genre = game.Genre,
       AverageRating = (float)game.AverageRating,
       UserRating = rating,
-      Comments = { comments.Select(c => c.MapToGameComment()) },
+      Comments = { commentDtos.Select(c => c.MapToGameComment()) },
     };
     return response;
+  }
+  
+  public override async Task<Response> AddGame(AddGameRequest request, ServerCallContext context)
+  {
+
+    var gameCreationData = new GameCreationData
+    {
+      Name = request.Name,
+      ReleaseDate = request.ReleaseDate,
+      PublisherId = request.PublisherId,
+      DeveloperId = request.DeveloperId,
+      GenreIds = request.GenreIds.ToArray(),
+      PlatformIds = request.PlatformIds.ToArray(),
+    };
+
+    var gameAlreadyExists = await repo.GameToInsertExistsAsync(gameCreationData);
+
+    if (gameAlreadyExists)
+    {
+      throw new RpcException(new Status(StatusCode.AlreadyExists, "game already exists"));
+    }
+    
+    var insertedRows = await repo.AddGame(gameCreationData);
+    return new Response
+    {
+      Success = insertedRows.insertedGamesCount > 0,
+      Message = $"Added {insertedRows.insertedGamesCount} games, {insertedRows.insertedGenreRelationsCount} game genre relations and {insertedRows.insertedPlatformRelationsCount} game platform relations"
+    };
+  }
+
+  public override async Task<Response> UpdateGame(UpdateGameRequest request, ServerCallContext context)
+  {
+    var gameCreationData = new GameCreationData()
+    {
+      Name = request.Name,
+      ReleaseDate = request.ReleaseDate,
+      PublisherId = request.PublisherId,
+      DeveloperId = request.DeveloperId,
+      GenreIds = request.GenreIds.ToArray(),
+      PlatformIds = request.PlatformIds.ToArray(),
+    };
+    
+    var gameAlreadyExists = await repo.GameToInsertExistsAsync(gameCreationData);
+
+    if (gameAlreadyExists)
+    {
+      throw new RpcException(new Status(StatusCode.AlreadyExists, "There already exists another game with the updated data"));
+    }
+    
+    var changedRows = await repo.UpdateGame(request.GameId, gameCreationData);
+
+    return new Response
+    {
+      Success = changedRows.updatedGamesCount > 0,
+      Message =
+        $@"Updated {changedRows.updatedGamesCount} games, deleted {changedRows.Item2.deletedPlatformRelationsCount} platform relations,
+        added {changedRows.Item2.addedPlatformRelationsCount} platform relations, left {changedRows.Item2.unchangedPlatformRelationsCount} platform relations unchanged, 
+        deleted {changedRows.Item3.deletedGenreRelationsCount} genre relations, added {changedRows.Item3.addedGenreRelationsCount} genre relations,
+        left {changedRows.Item3.unchangedGenreRelationsCount} genre relations unchanged,",
+    };
+  }
+
+
+
+
+  public override async Task<Response> DeleteGame(DeleteGameRequest request, ServerCallContext context)
+  {
+    await ExistanceChecker.CheckGameId(repo, request.GameId);
+    
+    var deleteGameResponse = await repo.DeleteGameAsync(request.GameId);
+
+    return new Response
+    {
+      Success = deleteGameResponse.deletedGamesCount > 0,
+      Message =
+        $@"Deleted {deleteGameResponse.deletedGamesCount} games, 
+        {deleteGameResponse.deletedGameGenreRelationsCount} game genre relations and 
+        {deleteGameResponse.deletedGamePlatformRelationsCount} game platform relations"
+    };
+
   }
 
 

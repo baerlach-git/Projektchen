@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+option csharp_namespace = "GameServiceProtos";
+
+message DeleteGameRequest{
+  int32 game_id = 1;
+}

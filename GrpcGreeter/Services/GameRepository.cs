@@ -1,13 +1,14 @@
 using GameServiceProtos;
 using GrpcGreeter.Helpers;
-
-namespace GrpcGreeter.Services;
-
 using Dapper;
 using MySql.Data.MySqlClient;
 using System.Data;
-using Models;
+using System.Xml.Xsl;
 using Grpcgreeter.Helpers;
+using GrpcGreeter.Models;
+using Array = Mysqlx.Expr.Array;
+
+namespace GrpcGreeter.Services;
 
 public class GameRepository
 {
@@ -45,7 +46,7 @@ public class GameRepository
     return result;
   }
   
-  public async Task<GameDto> GetGameWithRatingsAsync(int gameId)
+  public async Task<GameDto?> GetGameWithRatingsAsync(int gameId)
   {
     var query = @"
       SELECT
@@ -70,9 +71,70 @@ public class GameRepository
       ";
     using var db = Connection;
     var result = await db.QueryFirstAsync<GameDto>(query, new { gameId });
+    //var result = await db.ExecuteScalarAsync<GameDto?>(query,  new { gameId });
     return result;
   }
 
+  public async Task<(int insertedGamesCount, int insertedPlatformRelationsCount, int insertedGenreRelationsCount)> AddGame(GameCreationData gameCreationData)
+  {
+    
+    using var db = Connection;
+    
+    
+    var insertedGamesCount = await GameRepositoryHelpers.InsertGame(db, gameCreationData);
+
+    if (insertedGamesCount != 1)
+    {
+      throw new Exception("Game insert failed");
+    }
+    
+    var insertedGameId = await GameRepositoryHelpers.GetInsertedGameId(db, gameCreationData);
+    
+    var insertedPlatformRelationsCount =  await GameRepositoryHelpers.InsertGamePlatformRelations(db, gameCreationData, insertedGameId);
+    var insertedGenreRelationsCount = await GameRepositoryHelpers.InsertGameGenreRelations(db, gameCreationData, insertedGameId);
+    
+    return (insertedGamesCount, insertedPlatformRelationsCount, insertedGenreRelationsCount);
+    
+  }
+
+  public async Task<(int updatedGamesCount, (int deletedPlatformRelationsCount, int addedPlatformRelationsCount, int unchangedPlatformRelationsCount), (int addedGenreRelationsCount, int deletedGenreRelationsCount, int unchangedGenreRelationsCount))> UpdateGame(int gameId, GameCreationData gameCreationData)
+  {
+    using var db = Connection;
+
+    var sql = @"
+      UPDATE Game
+      SET Name = @Name, ReleaseDate = @ReleaseDate, PublisherId = @PublisherId, DeveloperId = @DeveloperId
+      WHERE Id = @gameId
+    ";
+    
+    var updatedGamesCount = await db.ExecuteScalarAsync<int>(sql, new { gameId, gameCreationData.Name, gameCreationData.ReleaseDate, gameCreationData.PublisherId,
+      gameCreationData.DeveloperId  } );
+
+    var platformRelationCounts =
+      await GameRepositoryHelpers.HandleGamePlatformRelationChanges(db, gameId, gameCreationData.PlatformIds);
+
+    var genreRelationCounts = await GameRepositoryHelpers.HandleGameGenreRelationChanges(db,  gameId, gameCreationData.GenreIds);
+    
+    return (updatedGamesCount, platformRelationCounts, genreRelationCounts);
+
+  }
+
+  public async Task<(int deletedGamesCount, int deletedGamePlatformRelationsCount, int deletedGameGenreRelationsCount)> DeleteGameAsync(int gameId)
+  {
+    using var db = Connection;
+    var gamePlatformRelations = await GameRepositoryHelpers.GetAllFromTableAsync<IdDto>(db, TableNames.GamePlatformRelation);
+    var gamePlatformRelationIds = gamePlatformRelations.Select(x => x.Id).ToArray();
+    var deletedGamePlatformRelationsCount = await GameRepositoryHelpers.DeleteIdsFromTableAsync(db, TableNames.GamePlatformRelation, gamePlatformRelationIds);
+    
+    var gameGenreRelations = await GameRepositoryHelpers.GetAllFromTableAsync<IdDto>(db, TableNames.GameGenreRelation);
+    var gameGenreRelationIds = gameGenreRelations.Select(x => x.Id).ToArray();
+    var deletedGameGenreRelationsCount = await GameRepositoryHelpers.DeleteIdsFromTableAsync(db, TableNames.GameGenreRelation, gameGenreRelationIds);
+    
+    var deletedGamesCount = await GameRepositoryHelpers.DeleteIdsFromTableAsync(db, TableNames.Game, [gameId]);
+    
+    return (deletedGamesCount, deletedGamePlatformRelationsCount, deletedGameGenreRelationsCount);
+  }
+  
   public async Task<int?> GetUserRatingAsync(int gameId, string userIp)
   {
     var sql = @"
@@ -81,7 +143,7 @@ public class GameRepository
       WHERE GameId = @gameId AND Ip = @userIp
     ";
     using var db = Connection;
-    return await db.QueryFirstAsync<int?>(sql, new { gameId, userIp });
+    return await db.ExecuteScalarAsync<int?>(sql, new { gameId, userIp });
   }
   
   
@@ -108,7 +170,7 @@ public class GameRepository
   {
     using var db = Connection;
     string sql = @"
-      UDPATE GameComment
+      UPDATE GameComment
       SET Content = @Content, Edited = 1
       WHERE Id = @Id;
     ";
@@ -137,6 +199,27 @@ public class GameRepository
     
     
   }
+  
+  public async Task<bool> GameToInsertExistsAsync(GameCreationData gameCreationData)
+  {
+    using var db = Connection;
+    
+    var sql = @"
+      SELECT COUNT(*)
+      FROM Game
+      WHERE 
+        Name = @Name AND 
+        ReleaseDate = @ReleaseDate AND 
+        PublisherId = @PublisherId AND 
+        DeveloperId = @DeveloperId;
+    ";
+    
+    return await db.ExecuteScalarAsync<int>(sql, gameCreationData) > 0;
+            
+            
+  }
+  
+  
 
   public async Task<bool> GameExistsAsync(int gameId)
   {

@@ -9,6 +9,7 @@ builder.Services.AddGrpc(options =>
 }).AddServiceOptions<GameService>(opt => opt.EnableDetailedErrors = true);
 
 builder.Services.AddSingleton<GameRepository>();
+builder.Services.AddGrpcReflection();
 
 var app = builder.Build();
 
@@ -21,5 +22,6 @@ using (var scope = app.Services.CreateScope())
 app.MapGrpcService<GameService>();
 
 app.UseRouting();
+app.MapGrpcReflectionService();
 
 app.Run();
