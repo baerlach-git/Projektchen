@@ -1,6 +1,4 @@
-using Google.Protobuf.WellKnownTypes;
-
-namespace GrpcGreeter.Models;
+namespace Shared.Models;
 
 public record GameCommentDto(
     int Id,

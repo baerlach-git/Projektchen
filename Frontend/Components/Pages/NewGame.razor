@@ -1,0 +1,68 @@
+@page "/NewGame"
+@using Frontend.Helpers
+@using GameServiceProtos
+@using Grpc.Core
+@using Shared.Models
+@inject GameService.GameServiceClient GameClient
+
+<h3>NewGame</h3>
+
+
+
+<EditForm EditContext="@_gameEditContext" OnInvalidSubmit="InValidSubmit" OnValidSubmit="ValidSubmit">
+    <DataAnnotationsValidator/>
+    <InputText @bind-Value="_gameCreationData.Name"/>
+    
+
+
+</EditForm>
+
+
+
+@code {
+    
+    GameCreationData _gameCreationData = new();
+    EditContext? _gameEditContext;
+    
+    List<PublisherDto>? _publishers;
+    List<GenreDto>? _genres;
+    List<DeveloperDto>? _developers;
+    List<PlatformDto>? _platforms;
+    
+    
+
+    void InValidSubmit(EditContext context)
+    {
+        
+    }
+
+    void ValidSubmit(EditContext context)
+    {
+        
+    }
+    
+    
+    readonly Metadata _headers = new()
+    {
+        { "x-api-key", "vwznnZRX1uX5dLDzw2RqGN1UevEHFoJjUGT6qcOCPLCLCa29VAlhBvbnpLA5fMBm" }
+    };
+    
+
+    protected override async Task OnInitializedAsync()
+    {
+        _gameEditContext = new(_gameCreationData);
+
+        var gameCreationPresets = await GameClient.GetGameCreationPresetsAsync(new EmptyMessage() { }, _headers);
+        _publishers = gameCreationPresets.Publishers.Select(p => p.MapToPublisherDto()).ToList();
+        _developers = gameCreationPresets.Developers.Select(d => d.MapToDeveloperDto()).ToList();
+        _platforms = gameCreationPresets.Platforms.Select(p => p.MapToPlatformDto()).ToList();
+        _genres = gameCreationPresets.Genres.Select(g => g.MapToGenreDto()).ToList();
+        
+        
+        
+        
+        
+        base.OnInitialized();
+    }
+
+}

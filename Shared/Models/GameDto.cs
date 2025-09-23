@@ -1,4 +1,4 @@
-namespace GrpcGreeter.Models;
+namespace Shared.Models;
 public record GameDto(
     int Id,
     string Name,

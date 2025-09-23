@@ -1,6 +1,6 @@
 using System.Data;
 using Dapper;
-using GrpcGreeter.Models;
+using Shared.Models;
 
 namespace GrpcGreeter.Helpers;
 
@@ -38,7 +38,7 @@ public static class GameRepositoryHelpers
             (@Name, @ReleaseDate, @PublisherId, @DeveloperId);
         ";
     
-        return await db.ExecuteScalarAsync<int>(sql, gameCreationData);
+        return await db.ExecuteAsync(sql, gameCreationData);
     }
 
     public static async Task<int> GetInsertedGameId(IDbConnection db, GameCreationData gameCreationData)
@@ -148,16 +148,26 @@ public static class GameRepositoryHelpers
         return response;
     }
 
-    public static async Task<IEnumerable<T>> GetAllFromTableAsync<T>(IDbConnection db, string tableName)
+    public static async Task<IEnumerable<int>> GetAllIdsFromTableAsync(IDbConnection db, string tableName)
     {
-        var sql = $"SELECT * FROM {tableName}";
-        return await db.QueryAsync<T>(sql);
+        var sql = $"SELECT Id FROM {tableName}";
+        return await db.QueryAsync<int>(sql);
+    }
+    
+    public static async Task<IEnumerable<int>> GetRelatedGameDataIdsAsync(IDbConnection db, string tableName, int  gameId)
+    {
+        var sql = $@"
+            SELECT Id 
+            FROM {tableName}
+            WHERE GameId = @gameId;
+        ";
+        return await db.QueryAsync<int>(sql, new { gameId });
     }
 
     public static async Task<int> DeleteIdsFromTableAsync(IDbConnection db, string tableName, int[] ids)
     {
         var sql = $"DELETE FROM {tableName} WHERE Id IN @Ids";
-        return await db.ExecuteAsync(sql, ids);
+        return await db.ExecuteAsync(sql, new { Ids = ids });
          
     }
 

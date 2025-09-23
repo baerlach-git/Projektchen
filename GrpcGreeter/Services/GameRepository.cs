@@ -5,7 +5,7 @@ using MySql.Data.MySqlClient;
 using System.Data;
 using System.Xml.Xsl;
 using Grpcgreeter.Helpers;
-using GrpcGreeter.Models;
+using Shared.Models;
 using Array = Mysqlx.Expr.Array;
 
 namespace GrpcGreeter.Services;
@@ -83,9 +83,9 @@ public class GameRepository
     
     var insertedGamesCount = await GameRepositoryHelpers.InsertGame(db, gameCreationData);
 
-    if (insertedGamesCount != 1)
+    if (insertedGamesCount == 0)
     {
-      throw new Exception("Game insert failed");
+      throw new Exception("Game was not inserted");
     }
     
     var insertedGameId = await GameRepositoryHelpers.GetInsertedGameId(db, gameCreationData);
@@ -119,20 +119,28 @@ public class GameRepository
 
   }
 
-  public async Task<(int deletedGamesCount, int deletedGamePlatformRelationsCount, int deletedGameGenreRelationsCount)> DeleteGameAsync(int gameId)
+  public async Task<(int deletedGamesCount, int deletedGamePlatformRelationsCount, int deletedGameGenreRelationsCount, int deletedCommentsCount, int deletedGameRatingsCount)> DeleteGameAsync(int gameId)
   {
     using var db = Connection;
-    var gamePlatformRelations = await GameRepositoryHelpers.GetAllFromTableAsync<IdDto>(db, TableNames.GamePlatformRelation);
-    var gamePlatformRelationIds = gamePlatformRelations.Select(x => x.Id).ToArray();
-    var deletedGamePlatformRelationsCount = await GameRepositoryHelpers.DeleteIdsFromTableAsync(db, TableNames.GamePlatformRelation, gamePlatformRelationIds);
+    var gamePlatformRelationIds = await GameRepositoryHelpers.GetRelatedGameDataIdsAsync(db, TableNames.GamePlatformRelation, gameId);
+    var gprIds = gamePlatformRelationIds.ToArray();
+    var deletedGamePlatformRelationsCount = await GameRepositoryHelpers.DeleteIdsFromTableAsync(db, TableNames.GamePlatformRelation, gprIds);
     
-    var gameGenreRelations = await GameRepositoryHelpers.GetAllFromTableAsync<IdDto>(db, TableNames.GameGenreRelation);
-    var gameGenreRelationIds = gameGenreRelations.Select(x => x.Id).ToArray();
-    var deletedGameGenreRelationsCount = await GameRepositoryHelpers.DeleteIdsFromTableAsync(db, TableNames.GameGenreRelation, gameGenreRelationIds);
+    var gameGenreRelationIds = await GameRepositoryHelpers.GetRelatedGameDataIdsAsync(db, TableNames.GameGenreRelation, gameId);
+    var ggrIds = gameGenreRelationIds.ToArray();
+    var deletedGameGenreRelationsCount = await GameRepositoryHelpers.DeleteIdsFromTableAsync(db, TableNames.GameGenreRelation, ggrIds);
+    
+    var gameCommentIds = await GameRepositoryHelpers.GetRelatedGameDataIdsAsync(db, TableNames.GameComment, gameId);
+    var gcIds = gameCommentIds.ToArray();
+    var deletedCommentsCount = await GameRepositoryHelpers.DeleteIdsFromTableAsync(db, TableNames.GameComment, gcIds);
+    
+    var gameRatingIds = await GameRepositoryHelpers.GetRelatedGameDataIdsAsync(db, TableNames.GameRating, gameId);
+    var grIds = gameRatingIds.ToArray();
+    var deletedGameRatingsCount = await  GameRepositoryHelpers.DeleteIdsFromTableAsync(db, TableNames.GameRating, grIds);
     
     var deletedGamesCount = await GameRepositoryHelpers.DeleteIdsFromTableAsync(db, TableNames.Game, [gameId]);
     
-    return (deletedGamesCount, deletedGamePlatformRelationsCount, deletedGameGenreRelationsCount);
+    return (deletedGamesCount, deletedGamePlatformRelationsCount, deletedGameGenreRelationsCount, deletedCommentsCount, deletedGameRatingsCount);
   }
   
   public async Task<int?> GetUserRatingAsync(int gameId, string userIp)

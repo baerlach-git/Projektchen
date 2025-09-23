@@ -17,13 +17,11 @@
   </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="..\Protos\*.proto" GrpcServices="Client" />
-        <Protobuf Update="..\Protos\game_request.proto">
-          <Link>Protos\game_request.proto</Link>
-        </Protobuf>
-        <Protobuf Update="..\Protos\game_with_comments_and_rating.proto">
-          <Link>Protos\game_with_comments_and_rating.proto</Link>
-        </Protobuf>
+        <Protobuf Include="..\Shared\Protos\*.proto" GrpcServices="Client" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Shared\Shared.csproj" />
     </ItemGroup>
 
 </Project>

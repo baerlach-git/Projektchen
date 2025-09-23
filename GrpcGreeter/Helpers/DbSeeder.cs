@@ -1,6 +1,6 @@
 using System.Data;
 using GrpcGreeter.Helpers;
-using GrpcGreeter.Models;
+using Shared.Models;
 
 namespace Grpcgreeter.Helpers;
 

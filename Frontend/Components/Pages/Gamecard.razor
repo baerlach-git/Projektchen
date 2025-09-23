@@ -1,43 +1,54 @@
 @using GameServiceProtos
+@using Grpc.Core
+@inject GameService.GameServiceClient GameClient
 
-@if(@Game == null)
-{
-    {
-        <p><em>Loading...</em></p>
-    }
-}
-<div style="display: flex; flex-flow: column nowrap; border: black 2px solid; border-radius: 1em; margin: 1em; padding: 1em; height: 11em; width:100%;">
-    <h3><a href="/Game/?Id=@Game.Id"> @Game?.Name (@Game?.ReleaseDate)</a></h3>
+<div style="display: flex; flex-flow: column nowrap; border: black 2px solid; border-radius: 1em; margin: 1em; padding: 1em; height: fit-content; width:100%;">
+    <h3><a href="/Game/?Id=@Game.Id"> @Game.Name (@Game.ReleaseDate)</a></h3>
 
     <div>
         <div style="display: flex; flex-flow: row nowrap; justify-content: space-between; width: 100%;">
             <div style="display: flex; flex-flow: column nowrap;">
-                <span>@Game?.AverageRating</span>
-                <span>@Game?.CommentCount</span>    
+                <span>@Game.AverageRating</span>
+                <span>@Game.CommentCount</span>    
             </div>
         
             <div style="display: flex; flex-flow: column nowrap;">
-                <span>@Game?.Genre</span>
-                <span>@Game?.Platform</span>
+                <span>@Game.Genre</span>
+                <span>@Game.Platform</span>
             </div>
         </div>
         <div style="display: flex; flex-flow: row nowrap; justify-content: flex-start; width: 100%;">
             <div style="display: flex; flex-flow: column nowrap">
                 <span>
-                    Publisher: @Game?.Publisher 
+                    Publisher: @Game.Publisher 
                 </span>
     
                 <span>
-                    Developer: @Game?.DevStudio
+                    Developer: @Game.DevStudio
                 </span>
             </div>
         </div>
+    </div>
+    <div>
+        <button @onclick="DeleteGame">Delete Game</button>
     </div>
 </div>
 
 
 @code {
     [Parameter]
-    public GameServiceProtos.Game? Game { get; set; }
+    public required Game Game { get; set; }
+    
+    readonly Metadata _headers = new()
+    {
+        { "x-api-key", "vwznnZRX1uX5dLDzw2RqGN1UevEHFoJjUGT6qcOCPLCLCa29VAlhBvbnpLA5fMBm" }
+    };
+
+
+    async Task DeleteGame()
+    {
+        await GameClient.DeleteGameAsync(new DeleteGameRequest() { GameId = Game.Id }, _headers);
+        
+    }
 
 }

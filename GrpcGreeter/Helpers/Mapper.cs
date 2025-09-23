@@ -1,9 +1,10 @@
 using Google.Protobuf.WellKnownTypes;
-
-namespace Grpcgreeter.Helpers;
-
 using GameServiceProtos;
-using GrpcGreeter.Models;
+using Shared.Models;
+
+
+namespace GrpcGreeter.Helpers;
+
 
 public static class Mapper
 {

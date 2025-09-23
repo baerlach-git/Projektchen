@@ -1,5 +1,5 @@
 using Grpcgreeter.Helpers;
-using GrpcGreeter.Models;
+using Shared.Models;
 
 
 namespace GrpcGreeter.Helpers;

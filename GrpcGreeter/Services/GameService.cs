@@ -1,9 +1,8 @@
 using Grpc.Core;
 using GameServiceProtos;
 using Google.Protobuf.WellKnownTypes;
-using Grpcgreeter.Helpers;
 using GrpcGreeter.Helpers;
-using GrpcGreeter.Models;
+using Shared.Models;
 using MySqlX.XDevAPI.Relational;
 
 namespace GrpcGreeter.Services;
@@ -128,8 +127,10 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
       Success = deleteGameResponse.deletedGamesCount > 0,
       Message =
         $@"Deleted {deleteGameResponse.deletedGamesCount} games, 
-        {deleteGameResponse.deletedGameGenreRelationsCount} game genre relations and 
-        {deleteGameResponse.deletedGamePlatformRelationsCount} game platform relations"
+        {deleteGameResponse.deletedGameGenreRelationsCount} game genre relations, 
+        {deleteGameResponse.deletedGamePlatformRelationsCount} game platform relations,
+        {deleteGameResponse.deletedCommentsCount} comments and
+        {deleteGameResponse.deletedGameRatingsCount} ratings."
     };
 
   }
