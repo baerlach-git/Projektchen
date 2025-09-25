@@ -1,0 +1,92 @@
+@typeparam T
+
+<div class="container">
+
+    <h3>Make your selection:</h3>
+
+    <div class="form-element">
+        <label for="fruits">Select Fruits</label>
+        <input type="text" class="multiselect" name="fruits" placeholder="Choose fruits" optionsLabel="@(string.Join(",",InitialValues))" optionsValue="@(string.Join(",",InitialValues))" value="@InitialValues.First()" />
+    </div>
+
+   
+</div>
+
+<style>
+    * {
+        box-sizing: border-box;
+        --theme-color: #56438f;
+        --theme-txtcolor: #56438f;
+        --theme-bgcolor: white;
+    }
+
+    body {
+        padding: 20px;
+        color: var(--theme-txtcolor);
+    }
+
+    .form-element {
+        height: 60px;
+    }
+
+    label {
+        user-select: none;
+    }
+
+    .ms-inp-parent {
+        max-width: 200px;
+        border-radius: 5px;
+        max-height: 40px;
+        color: var(--theme-txtcolor);
+    }
+
+    .ms-inp-parent > .ms-inp-element {
+        border: 1px solid var(--theme-color);
+        border-radius: 5px;
+        height: 30px;
+        padding: 5px;
+        width: calc(100% - 20px);
+        color: var(--theme-txtcolor);
+    }
+
+    .ms-inp-parent:before {
+        content: "▼";
+        color: var(--theme-color);
+        float: right;
+        position: relative;
+        top: 7px;
+        right: 27px;
+    }
+
+    .ms-inp-optionList {
+        display: none;
+        position: relative;
+        top: -1px;
+        max-height: 150px;
+        width: calc(100% - 20px);
+        padding: 5px;
+        overflow-y: scroll;
+        background-color: var(--theme-bgcolor);
+        border: 1px solid var(--theme-color);
+        border-radius: 5px;
+        z-index: 1;
+    }
+
+    .ms-inp-optionList > label {
+        display: block;
+        height: 20px;
+    }
+
+    .ms-inp-optionList::-webkit-scrollbar {
+        display: none;
+    }
+
+    .ms-inp-parent:focus-within .ms-inp-optionList {
+        display: block;
+    }
+
+    .ms-inp-parent:focus > .ms-inp-optionList {
+        display: block;
+    }
+
+</style>

@@ -1,4 +1,6 @@
 @page "/NewGame"
+@rendermode InteractiveServer
+@using Frontend.Components.FormComponents
 @using Frontend.Helpers
 @using GameServiceProtos
 @using Grpc.Core
@@ -7,28 +9,75 @@
 
 <h3>NewGame</h3>
 
+@if (_publishers == null || _developers == null || _genres == null || _platforms == null)
+{
+    <div>
+        ...Loading
+    </div>
+}
+
+else
+{
+    /*
+    <EditForm  EditContext="@_gameEditContext" OnInvalidSubmit="InValidSubmit" OnValidSubmit="ValidSubmit">
+        <DataAnnotationsValidator/>
+        <CustomTextInput Label="Game Name" @bind-Value="@_gameCreationData.Name"/>
+        <CustomIntegerInput Label="Release Date" @bind-Value="_gameCreationData.ReleaseDate"/>
+        <CustomSingleIdNameSelection Label="Publisher" @bind-Value="@_gameCreationData.PublisherId" ValueList="_publishers"></CustomSingleIdNameSelection>
+        <CustomSingleIdNameSelection Label="Developer" @bind-Value="@_gameCreationData.DeveloperId" ValueList="_developers"></CustomSingleIdNameSelection>
+        
+        
+      
+        
+        
+        <ValidationSummary/>
+    </EditForm>
+    <CustomButton ButtonClickedChanged="@(() => { Console.WriteLine(string.Join(",", selected)); })"/>
+    */
+}
+
+<CustomSelect  T="string" @bind-SelectedValues="@selected" InitialValues="@initial"></CustomSelect>
 
 
-<EditForm EditContext="@_gameEditContext" OnInvalidSubmit="InValidSubmit" OnValidSubmit="ValidSubmit">
-    <DataAnnotationsValidator/>
-    <InputText @bind-Value="_gameCreationData.Name"/>
-    
 
-
-</EditForm>
 
 
 
 @code {
     
-    GameCreationData _gameCreationData = new();
+    readonly GameCreationData _gameCreationData = new();
     EditContext? _gameEditContext;
+
+/*
+    Dictionary<string, int> _publisherDict = new();
+    Dictionary<string, int> _developerDict = new();
+    Dictionary<string, int> _genreDict = new();
+    Dictionary<string, int> _platformDict = new();
+  */  
+    List<(int Id, string Name)>? _publishers;
+    List<(int Id, string Name)>? _genres;
+    List<(int Id, string Name)>? _developers;
+    List<(int Id, string Name)>? _platforms;
+
+    IEnumerable<string> selected { get; set; } = [];
+    IEnumerable<string> initial = ["1", "2", "3"];
     
-    List<PublisherDto>? _publishers;
-    List<GenreDto>? _genres;
-    List<DeveloperDto>? _developers;
-    List<PlatformDto>? _platforms;
-    
+
+    /*void AddGenre(ChangeEventArgs e)
+    {
+        if (e.Value == null || _genres == null)
+        {
+            return;
+        }
+        var parseSucceeded = int.TryParse(e.Value.ToString(), out var genreId);
+        if (!parseSucceeded)
+        {
+            return;
+        }
+        _gameCreationData.GenreIds.Add(genreId);
+        var removeIndex = _genres.FindIndex(g => g.Id == genreId);
+        _genres.RemoveAt(removeIndex);
+    }*/
     
 
     void InValidSubmit(EditContext context)
@@ -53,14 +102,18 @@
         _gameEditContext = new(_gameCreationData);
 
         var gameCreationPresets = await GameClient.GetGameCreationPresetsAsync(new EmptyMessage() { }, _headers);
-        _publishers = gameCreationPresets.Publishers.Select(p => p.MapToPublisherDto()).ToList();
-        _developers = gameCreationPresets.Developers.Select(d => d.MapToDeveloperDto()).ToList();
-        _platforms = gameCreationPresets.Platforms.Select(p => p.MapToPlatformDto()).ToList();
-        _genres = gameCreationPresets.Genres.Select(g => g.MapToGenreDto()).ToList();
+        _publishers = gameCreationPresets.Publishers.Select(p => (p.Id, p.Name)).ToList();
+        _developers = gameCreationPresets.Developers.Select(p => (p.Id, p.Name)).ToList();
+        _platforms = gameCreationPresets.Platforms.Select(p => (p.Id, p.Name)).ToList();
+        _genres = gameCreationPresets.Genres.Select(p => (p.Id, p.Name)).ToList();
         
         
-        
-        
+        /*
+        gameCreationPresets.Publishers.ToList().ForEach(obj => {_publisherDict.Add(obj.Name, obj.Id);});
+        gameCreationPresets.Developers.ToList().ForEach(obj => {_developerDict.Add(obj.Name, obj.Id);});
+        gameCreationPresets.Genres.ToList().ForEach(obj => {_genreDict.Add(obj.Name, obj.Id);});
+        gameCreationPresets.Platforms.ToList().ForEach(obj => {_platformDict.Add(obj.Name, obj.Id);});
+        */
         
         base.OnInitialized();
     }

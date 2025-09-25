@@ -1,0 +1,20 @@
+@using System.Reflection.Metadata
+<h3>CustomButton</h3>
+
+
+<button @onclick="OnClick">@ChildContent</button>
+
+@code {
+    [Parameter] 
+    public EventCallback ButtonClickedChanged { get; set; }
+
+    [Parameter] 
+    public string? ChildContent { get; set; }
+    
+    private async Task OnClick()
+    {
+        await ButtonClickedChanged.InvokeAsync();
+        Console.WriteLine("OnClick");
+    }
+    
+}
