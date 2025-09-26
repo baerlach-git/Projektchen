@@ -1,16 +1,14 @@
 @typeparam T
 
-<div class="container">
-
-    <h3>Make your selection:</h3>
-
-    <div class="form-element">
-        <label for="fruits">Select Fruits</label>
-        <input type="text" class="multiselect" name="fruits" placeholder="Choose fruits" optionsLabel="@(string.Join(",",InitialValues))" optionsValue="@(string.Join(",",InitialValues))" value="@InitialValues.First()" />
+    
+<div class="mb-3 ">
+    <label class="form-label" for="@Id">@Label</label>
+    <div class="ms-container">
+        <input type="text" class="multiselect " id="@Id" name="fruits" placeholder="@Placeholder" optionsLabel="@(string.Join(",", ValueMapping.Keys))" optionsValue="@(string.Join(",", ValueMapping.Values))" value=""/>
     </div>
+</div>
 
    
-</div>
 
 <style>
     * {
@@ -32,9 +30,16 @@
     label {
         user-select: none;
     }
+    
+    .ms-container {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;  
+        width: 100%;
+    }
 
     .ms-inp-parent {
-        max-width: 200px;
+      /*  max-width: 200px; */
         border-radius: 5px;
         max-height: 40px;
         color: var(--theme-txtcolor);

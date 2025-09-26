@@ -1,10 +1,11 @@
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 
 namespace Frontend.Components.FormComponents;
 
-public partial class CustomSelect<T> : ComponentBase
+public partial class CustomSelect<T> : ComponentBase where T : notnull
 {
     
     [Parameter]
@@ -16,9 +17,8 @@ public partial class CustomSelect<T> : ComponentBase
     
     [Parameter] public IEnumerable<T> SelectedValues { get; set; } = [];
     [Parameter] public EventCallback<IEnumerable<T>> SelectedValuesChanged { get; set; }
-    [Parameter] public IEnumerable<T> InitialValues { get; set; } = [];
-    [Parameter] public IEnumerable<string> InitialValueLabels { get; set; } = [];
-    
+    [Parameter] public Expression<Func<IEnumerable<T>>> SelectedValuesExpression { get; set; }
+    [Parameter] public Dictionary<string, T> ValueMapping { get; set; } = new();
     [Inject]
     private IJSRuntime JsRuntime { get; set; }
 
@@ -32,7 +32,7 @@ public partial class CustomSelect<T> : ComponentBase
         {
             _dotNetObjectReference = DotNetObjectReference.Create(this);
             _module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/FormComponents/CustomSelect.razor.js"); 
-            await _module.InvokeVoidAsync("initComponent", _dotNetObjectReference);
+            await _module.InvokeVoidAsync("initComponent", _dotNetObjectReference, Id, ValueMapping);
         }
         
         
@@ -40,7 +40,19 @@ public partial class CustomSelect<T> : ComponentBase
     [JSInvokable]
     public async Task OnElementSelected(T[] element)
     {
-        await SelectedValuesChanged.InvokeAsync(element);
-    Console.WriteLine(string.Join(", ", element));    
+        try
+        {
+            
+           await SelectedValuesChanged.InvokeAsync(element);
+            Console.WriteLine(string.Join(",", element));
+            //Console.WriteLine(string.Join(",", ValueMapping.Keys));
+            //var convertedElement = element.Select(e => ValueMapping[e]).ToList();
+            
+     
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
     }
 }

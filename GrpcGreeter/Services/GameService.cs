@@ -62,8 +62,8 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
       ReleaseDate = request.ReleaseDate,
       PublisherId = request.PublisherId,
       DeveloperId = request.DeveloperId,
-      GenreIds = request.GenreIds.ToArray(),
-      PlatformIds = request.PlatformIds.ToArray(),
+      GenreIds = request.GenreIds.ToList(),
+      PlatformIds = request.PlatformIds.ToList(),
     };
 
     var gameAlreadyExists = await repo.GameToInsertExistsAsync(gameCreationData);
@@ -89,8 +89,8 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
       ReleaseDate = request.ReleaseDate,
       PublisherId = request.PublisherId,
       DeveloperId = request.DeveloperId,
-      GenreIds = request.GenreIds.ToArray(),
-      PlatformIds = request.PlatformIds.ToArray(),
+      GenreIds = request.GenreIds.ToList(),
+      PlatformIds = request.PlatformIds.ToList(),
     };
     
     var gameAlreadyExists = await repo.GameToInsertExistsAsync(gameCreationData);

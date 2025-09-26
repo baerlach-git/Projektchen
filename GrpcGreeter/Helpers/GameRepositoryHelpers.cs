@@ -171,7 +171,7 @@ public static class GameRepositoryHelpers
          
     }
 
-    public static CategorizedIds CategorizeIds(int[] updatedIds, int[] existingIds)
+    public static CategorizedIds CategorizeIds(IEnumerable<int> updatedIds, IEnumerable<int> existingIds)
     {
         var categorizedPlatformIds = new CategorizedIds();
 
@@ -198,7 +198,7 @@ public static class GameRepositoryHelpers
         return  categorizedPlatformIds;
     }
 
-    public static async Task<(int deletedPlatformRelations, int addedPlatformRelations, int unchangedPlatformRelations)>HandleGamePlatformRelationChanges(IDbConnection db, int gameId, int[] platformIds)
+    public static async Task<(int deletedPlatformRelations, int addedPlatformRelations, int unchangedPlatformRelations)>HandleGamePlatformRelationChanges(IDbConnection db, int gameId, IEnumerable<int> platformIds)
     {
         var sql = "SELECT PlatformId FROM Game_Platform WHERE GameId = @gameId";
         var relatedPlatformIds = await db.QueryAsync<int>(sql, new { gameId });
@@ -225,7 +225,7 @@ public static class GameRepositoryHelpers
         return (deletedPlatformRelations, addedPlatformRelations, unchangedPlatformRelations);
     }
     
-    public static async Task<(int deletedGenreRelations, int addedGenreRelations, int unchangedGenreRelations)>HandleGameGenreRelationChanges(IDbConnection db, int gameId, int[] genreIds)
+    public static async Task<(int deletedGenreRelations, int addedGenreRelations, int unchangedGenreRelations)>HandleGameGenreRelationChanges(IDbConnection db, int gameId, IEnumerable<int> genreIds)
     {
         var sql = "SELECT GenreId FROM Game_Genre WHERE GameId = @gameId";
         var relatedGenreIds = await db.QueryAsync<int>(sql, new { gameId });

@@ -1,0 +1,70 @@
+@page "/MudGames"
+@rendermode InteractiveServer
+@using Frontend.Helpers
+@using GameServiceProtos
+@inject GameService.GameServiceClient GameClient
+
+<h3>MUDGAMES</h3>
+
+
+@if (_gameList == null )
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    
+    
+    <MudDataGrid Items="@games" ReadOnly = "true" ExpandSingleRow="false">
+        <Columns>
+            <HierarchyColumn T = "Game" EnableHeaderToggle="true"/>
+            <PropertyColumn Property="x => x.Name" Title="Name"/>
+            <PropertyColumn Property="x => x.ReleaseDate" Title="Release "/>
+            <PropertyColumn Property="x => x.AverageRating" Title="Average Rating"/>
+            <PropertyColumn Property="x => x.CommentCount" Title="#Comments"/>
+            <PropertyColumn Property="x => x.DevStudio" Title="Developer"/>
+            <PropertyColumn Property="x => x.Publisher" Title="Publisher"/>
+            <PropertyColumn Property="x => x.Genre" Title="Genre"/>
+            <PropertyColumn Property="x => x.Platform" Title="Platform"/>
+        </Columns>
+        <ChildRowContent>
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">@context.Item.Name</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText>Release Year: @context.Item.ReleaseDate</MudText>
+                    <MudText>Average Rating: @context.Item.AverageRating</MudText>
+                    <MudText>#Comments: @context.Item.CommentCount</MudText>
+                    <MudText>Genre: @context.Item.Genre</MudText>
+                    <MudText>Platform: @context.Item.Platform</MudText>
+                    <MudText>Developer: @context.Item.DevStudio</MudText>
+                    <MudText> Publisher: @context.Item.Publisher</MudText>
+                </MudCardContent>
+            </MudCard>
+        </ChildRowContent>
+        <PagerContent>
+            <MudDataGridPager T="Game"></MudDataGridPager>
+        </PagerContent>
+    </MudDataGrid>
+    
+}
+
+@code {
+    private GameList? _gameList;
+
+    List<Game> games { get; set; }
+    
+    
+
+    
+
+    protected override async Task OnInitializedAsync()
+    {
+        _gameList = await GameClient.GetGamesAsync(new EmptyMessage { }, HttpConfig.Headers);
+        games = _gameList.Games.ToList();
+    }   
+
+}

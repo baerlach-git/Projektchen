@@ -1,5 +1,6 @@
 using Frontend.Components;
 using GameServiceProtos;
+using MudBlazor.Services;
 using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,8 @@ builder.Services
     .AddRazorComponents()
     .AddInteractiveServerComponents();
 
+//Mudblazor
+builder.Services.AddMudServices();
 //Needed to access http headers and thus ip addresses
 builder.Services.AddHttpContextAccessor();
 //not really necessary in this case, only needed when deploying on remote containers like azure containers and

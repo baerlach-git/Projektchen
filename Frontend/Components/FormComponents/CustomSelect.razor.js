@@ -1,7 +1,10 @@
 // Initialize function, create initial tokens with itens that are already selected by the user
 
-export function initComponent(dotNetRef){
-    
+let counter = 0;
+
+export function initComponent(dotNetRef, id){
+    counter++;
+    console.log("init execution counter:", counter);
     
 
     const transformToMultiSelect = function (elem) {
@@ -33,7 +36,7 @@ export function initComponent(dotNetRef){
             let selection = Array.prototype.slice
                 .call(parent.querySelectorAll('input[type="checkbox"]:checked'))
                 .map((c) =>
-                    c.value
+                    keyc.value
                 );
             console.log(selection);
             dotNetRef.invokeMethodAsync("OnElementSelected",selection);
@@ -66,9 +69,10 @@ export function initComponent(dotNetRef){
 
         elem.replaceWith(parent);
     };
-
-    document
-        .querySelectorAll('input.multiselect[type="text"]')
-        .forEach((inp) => transformToMultiSelect(inp));
+    
+    let input = document.getElementById(id);
+    transformToMultiSelect(input);
+    
 }
+
 
