@@ -8,6 +8,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrpcGreeterClient", "GrpcGr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frontend", "Frontend\Frontend.csproj", "{B625DC7F-FE8E-4542-A858-BA7934C995D5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "deployment", "deployment", "{C7357CEB-DD43-4BC3-AC3B-340995920B08}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+		init.sql = init.sql
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{7B01F4BF-5D47-46BF-919C-E7F20034C6AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +34,10 @@ Global
 		{B625DC7F-FE8E-4542-A858-BA7934C995D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B625DC7F-FE8E-4542-A858-BA7934C995D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B625DC7F-FE8E-4542-A858-BA7934C995D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B01F4BF-5D47-46BF-919C-E7F20034C6AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B01F4BF-5D47-46BF-919C-E7F20034C6AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B01F4BF-5D47-46BF-919C-E7F20034C6AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B01F4BF-5D47-46BF-919C-E7F20034C6AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,133 @@
+@page "/MudNewGame"
+@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@using Frontend.Components.FormComponents
+@using Frontend.Helpers
+@using GameServiceProtos
+@using Grpc.Core
+@using Shared.Models
+@inject GameService.GameServiceClient GameClient
+
+<h3>MudNewGame</h3>
+
+@if (_publishers == null || _developers == null || _genres == null || _platforms == null)
+{
+    <div>
+        ...Loading
+    </div>
+}
+
+else
+{
+    <MudTextField @bind-Value="Name" Variant="Variant.Outlined"></MudTextField>
+    <MudNumericField @bind-Value="@ReleaseDate"  Variant="Variant.Outlined" T="int"></MudNumericField>
+    <MudSelect @bind-Value="PublisherId"
+               Variant="Variant.Outlined"
+               Label="Publisher"
+               FitContent="true"
+               Disabled="false"
+               ReadOnly="true"
+               Placeholder="">
+        @foreach (var pub in _publishers)
+        {
+            <MudSelectItem Value="@pub.Id">@pub.Name</MudSelectItem>
+        }
+    </MudSelect>
+    <MudSelect @bind-Value="DeveloperId"
+               Variant="Variant.Outlined"
+               Label="Developer"
+               FitContent="true"
+               Disabled="false"
+               ReadOnly="true"
+               Placeholder="">
+        @foreach (var dev in _developers)
+        {
+            <MudSelectItem Value="@dev.Id">@dev.Name</MudSelectItem>
+        }
+    </MudSelect>
+    <MudSelect @bind-SelectedValues="@PlatformIds" MultiSelection="true" T="int" Variant="Variant.Outlined"
+               Label="Platform"
+               FitContent="true"
+               Disabled="false"
+               ReadOnly="true">
+        @foreach (var plf in _platforms)
+        {
+            <MudSelectItem T="int" Value="@plf.Id">@plf.Name</MudSelectItem>
+        }
+    </MudSelect>
+    <MudSelect @bind-SelectedValues="@GenreIds" MultiSelection="true" T="int" Variant="Variant.Outlined"
+               Label="Genre"
+               FitContent="true"
+               Disabled="false"
+               ReadOnly="true">
+        @foreach (var gen in _genres)
+        {
+            <MudSelectItem T="int" Value="@gen.Id">@gen.Name</MudSelectItem>
+        }
+    </MudSelect>
+
+}
+
+
+
+@code {
+    private string Name { get; set; }
+    private int ReleaseDate { get; set; }
+    private int PublisherId { get; set; }
+    private int DeveloperId { get; set; }
+    IEnumerable<int> PlatformIds { get; set; } = [];
+    IEnumerable<int> GenreIds { get; set; } = [];
+
+    List<(int Id, string Name)>? _publishers;
+    List<(int Id, string Name)>? _genres;
+    List<(int Id, string Name)>? _developers;
+    List<(int Id, string Name)>? _platforms;
+
+    ICollection<ValidationResult> _validationResults;
+    
+    async Task Submit()
+    {
+        var gameCreationData = new GameCreationData
+        {
+            Name = Name,
+            ReleaseDate = ReleaseDate,
+            DeveloperId = DeveloperId,
+            PublisherId = PublisherId,
+            PlatformIds = PlatformIds.ToList(),
+            GenreIds = GenreIds.ToList()
+        };
+
+
+        var isValid = Validator.TryValidateObject(gameCreationData, new ValidationContext(gameCreationData), _validationResults, true);
+
+        if (isValid)
+        {
+            await GameClient.AddGameAsync(new AddGameRequest()
+            {
+                Name = gameCreationData.Name,
+                ReleaseDate = (int)gameCreationData.ReleaseDate!,
+                DeveloperId = (int)gameCreationData.DeveloperId!,
+                PublisherId = (int)gameCreationData.PublisherId!,
+                PlatformIds = { gameCreationData.PlatformIds },
+                GenreIds = { gameCreationData.GenreIds }
+            }, HttpConfig.Headers);
+        }
+    }
+    
+    
+    
+
+    protected override async Task OnInitializedAsync()
+    {
+        var gameCreationPresets = await GameClient.GetGameCreationPresetsAsync(new EmptyMessage() { }, HttpConfig.Headers);
+        _publishers = gameCreationPresets.Publishers.Select(p => (p.Id, p.Name)).ToList();
+        _developers = gameCreationPresets.Developers.Select(p => (p.Id, p.Name)).ToList();
+        _platforms = gameCreationPresets.Platforms.Select(p => (p.Id, p.Name)).ToList();
+        _genres = gameCreationPresets.Genres.Select(p => (p.Id, p.Name)).ToList();
+
+        
+        await base.OnInitializedAsync();
+    }
+
+}
+}

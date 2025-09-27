@@ -134,6 +134,7 @@ h1:focus {
     private async Task AddComment()
     {
         await GameClient.AddGameCommentAsync(new AddGameCommentRequest { Content = _newComment, GameId = GameId }, HttpConfig.Headers);
+        await RefreshData();
     }
 
     private async Task RefreshData()
@@ -162,7 +163,6 @@ h1:focus {
         _currentRating = rating;
         await GameClient.AddRatingAsync(new GameRatingRequest { GameId = GameId, Rating = rating }, HttpConfig.Headers);
         await RefreshData();
-        //StateHasChanged();
     }
     
     

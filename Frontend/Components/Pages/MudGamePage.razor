@@ -1,0 +1,128 @@
+@page "/MudGame"
+@rendermode InteractiveServer
+@inject GameService.GameServiceClient GameClient
+@using Frontend.Helpers
+@using GameServiceProtos
+@inject IHttpContextAccessor HttpContextAccessor
+
+<PageTitle>Game Nr. @GameId</PageTitle>
+
+
+@if (_gameInfo == null || _comments == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudCard Outlined="true">
+        <MudCardHeader>
+            <MudText>@_gameInfo.Name</MudText>
+        </MudCardHeader>
+        <MudCardContent>
+           @*<MudRating MaxValue="5" SelectedValueChanged="@(async (rating) => await RateGame(rating))" @bind-SelectedValue="@UserRating" />*@
+            <MudText>Average rating: @_gameInfo.AverageRating</MudText>
+            <MudText>Comments: @_gameInfo.CommentCount</MudText>
+            <MudText>Publisher: @_gameInfo.Publisher</MudText>
+            <MudText>Developer: @_gameInfo.DevStudio</MudText>
+            <MudText>Platform: @_gameInfo.Platform</MudText>
+            <MudText>Genre: @_gameInfo.Genre</MudText>
+            <MudCardActions>
+                <MudButton OnClick="@DeleteGame">Delete Game</MudButton>
+            </MudCardActions>
+        </MudCardContent>
+    </MudCard>
+    <MudDivider/>
+    <MudCard>
+        <MudCardHeader>
+            <MudText>Add a new Comment</MudText>
+            <MudCardContent>
+                <MudTextField Variant="Variant.Outlined" @bind-Value="@NewComment"></MudTextField>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Button" OnClick="@(async () => await AddComment())">Save Comment</MudButton>
+            </MudCardActions>
+        </MudCardHeader>
+        
+    </MudCard>
+    <MudDivider/>
+    
+    @foreach(var comment in _comments)
+    {
+        <MudCard Outlined="true" Elevation="2" Style="width: 50%; height:fit-content; margin-bottom: 0.5em; margin-top: 0.5em;">
+            <MudCardHeader>
+                <MudText>@comment.Ip @comment.CreatedAt</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText>
+                    @comment.Content
+                </MudText>
+            </MudCardContent>
+        </MudCard>
+    }
+    
+}
+
+
+
+@code {
+
+    [Parameter, SupplyParameterFromQuery(Name="Id")] 
+    public required int GameId { get; set; }
+
+    List<GameComment>? _comments;
+    Game? _gameInfo;
+    public int UserRating { get; set; }
+    
+
+    
+    string NewComment { get; set; } = "";
+
+    private async Task AddComment()
+    {
+        await GameClient.AddGameCommentAsync(new AddGameCommentRequest { Content = NewComment, GameId = GameId }, HttpConfig.Headers);
+        await RefreshData();
+    }
+
+    private async Task RefreshData()
+    {
+        var response = await GameClient.GetGameWithCommentsAndRatingAsync(new GameWithCommentsAndRatingRequest { GameId = GameId}, HttpConfig.Headers);
+        _comments = response.Comments.ToList();
+
+        Console.WriteLine($"userRating {response.UserRating}");
+        if (response.UserRating != null)
+        {
+            UserRating = (int)response.UserRating;
+        }
+        _gameInfo = new Game
+        {
+            Name = response.Name,
+            Id = response.Id,
+            ReleaseDate = response.ReleaseDate,
+            Publisher = response.Publisher,
+            DevStudio = response.DevStudio,
+            Genre = response.Genre,
+            Platform = response.Platform,
+            AverageRating = response.AverageRating,
+            CommentCount = _comments.Count
+        };
+    }
+
+
+    private async Task RateGame(int rating)
+    {
+        await GameClient.AddRatingAsync(new GameRatingRequest { GameId = GameId, Rating = rating }, HttpConfig.Headers);
+        //await RefreshData();
+    }
+    
+    private async Task DeleteGame()
+    {
+        await GameClient.DeleteGameAsync(new DeleteGameRequest() { GameId = GameId}, HttpConfig.Headers);
+    }
+    
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshData();
+    }
+
+}
