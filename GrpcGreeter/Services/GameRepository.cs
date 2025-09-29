@@ -1,12 +1,9 @@
-using GameServiceProtos;
 using GrpcGreeter.Helpers;
 using Dapper;
 using MySql.Data.MySqlClient;
 using System.Data;
-using System.Xml.Xsl;
 using Grpcgreeter.Helpers;
 using Shared.Models;
-using Array = Mysqlx.Expr.Array;
 
 namespace GrpcGreeter.Services;
 
@@ -19,9 +16,11 @@ public class GameRepository
   
   private IDbConnection Connection => new MySqlConnection(_connectionString);
 
-  public async Task<IEnumerable<GameDto>> GetGamesWithRatingsAsync()
+  public async Task<IEnumerable<GameDto>> GetGamesWithRatingsAsync(Pagination? pagination = null)
   {
-    var query = @"
+    var paginationInsert = pagination == null ? "" : $"LIMIT {pagination.Offset}, {pagination.Limit}";
+ 
+    var query = @$"
       SELECT
         g.Id AS Id, g.Name AS Name, g.ReleaseDate AS ReleaseDate,
         p.Name AS Publisher,
@@ -39,8 +38,9 @@ public class GameRepository
         JOIN Genre gen ON gen.ID = gg.GenreId
         JOIN GameRating r ON g.Id = r.GameId
         JOIN GameComment c ON g.Id = c.GameId WHERE c.Deleted = 0
-      GROUP BY Id, Name, ReleaseDate, Publisher, Developer;
-      ";
+      GROUP BY Id, Name, ReleaseDate, Publisher, Developer 
+      {paginationInsert}
+      ;";
     using var db = Connection;
     var result = await db.QueryAsync<GameDto>(query);
     return result;
@@ -91,7 +91,7 @@ public class GameRepository
     var insertedGameId = await GameRepositoryHelpers.GetInsertedGameId(db, gameCreationData);
     
     var insertedPlatformRelationsCount =  await GameRepositoryHelpers.InsertGamePlatformRelations(db, gameCreationData, insertedGameId);
-    var insertedGenreRelationsCount = await GameRepositoryHelpers.InsertGameGenreRelations(db, gameCreationData, insertedGameId);
+    var insertedGenreRelationsCount = await GameRepositoryHelpers.InsertGameGenreRelations(db, insertedGameId, gameCreationData.GenreIds);
     
     return (insertedGamesCount, insertedPlatformRelationsCount, insertedGenreRelationsCount);
     
@@ -155,14 +155,18 @@ public class GameRepository
   }
   
   
-  public async Task<IEnumerable<GameCommentDto>> GetGameCommentsForGameAsync(int gameId)
+  public async Task<IEnumerable<GameCommentDto>> GetGameCommentsForGameAsync(int gameId, Pagination?  pagination = null)
   {
+    var paginationInsert = pagination == null ? "" : $"LIMIT {pagination.Offset}, {pagination.Limit}";
+
+    
     using var db = Connection;
-    string sql = @"
+    string sql = @$"
       SELECT Id, GameId, ParentId, Ip, Content, Deleted, Edited, CreatedAt, UpdatedAt
       FROM GameComment
-      WHERE GameId = @gameId;
-    ";
+      WHERE GameId = @gameId
+      {paginationInsert}
+    ;";
     return await db.QueryAsync<GameCommentDto>(sql, new { gameId });
   }
 
@@ -226,15 +230,12 @@ public class GameRepository
             
             
   }
-  
-  
 
-  public async Task<bool> GameExistsAsync(int gameId)
+  public async Task<bool> IdExistsInTableAsync(int gameId, string tableName)
   {
     using var db = Connection;
-    var sql = "SELECT COUNT(*) FROM Game WHERE Id = @Id";
-    var result = await db.ExecuteScalarAsync<int>(sql, new { Id = gameId });
-    return result > 0;
+    string sql = $"SELECT COUNT(*) FROM {tableName} WHERE Id = @Id;";
+    return await db.ExecuteScalarAsync<int>(sql, new { Id = gameId }) > 0;
   }
 
   public async Task<bool> RatingExistsAsync(int gameId, string Ip)

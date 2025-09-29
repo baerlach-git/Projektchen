@@ -8,22 +8,14 @@ namespace GrpcGreeter.Helpers;
 
 public static class ExistanceChecker
 {
+    
+    
     public static async Task CheckGameId(GameRepository repo, int gameId)
     {
-        var gameExists = await repo.GameExistsAsync(gameId);
+        var gameExists = await repo.IdExistsInTableAsync(gameId, TableNames.Game);
         if (!gameExists)
         {
             throw new RpcException(new Status(StatusCode.NotFound, "The game cannot be found"));
-        }
-    }
-    
-    public static async Task CheckGameRatingId(GameRepository repo, int gameId, string clientIp)
-    {
-        var ratingExists = await repo.RatingExistsAsync(gameId, clientIp);
-
-        if (!ratingExists)
-        {
-            throw new RpcException(new Status(StatusCode.NotFound, "The game rating cannot be found"));
         }
     }
 

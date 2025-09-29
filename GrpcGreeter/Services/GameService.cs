@@ -28,34 +28,45 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
   }
   public override async Task<GameWithCommentsAndRating> GetGameWithCommentsAndRating(GameWithCommentsAndRatingRequest request, ServerCallContext context)
   {
-    
-    
-    var game = await repo.GetGameWithRatingsAsync(request.GameId);//contains commentCount which isn't used
-    var commentDtos = await repo.GetGameCommentsForGameAsync(request.GameId);
-    var clientIp = GetClientIp(context);
-    
-    var rating = await repo.GetUserRatingAsync(request.GameId, clientIp);
-    Console.WriteLine($"comment count: {commentDtos.Count()}");
-
-    var response = new GameWithCommentsAndRating
+    //QUESTION: how to properly handle exceptions?
+    try
     {
-      Id = game.Id,
-      Name = game.Name,
-      ReleaseDate = game.ReleaseDate,
-      Publisher = game.Publisher,
-      DevStudio = game.Developer,
-      Platform = game.Platform,
-      Genre = game.Genre,
-      AverageRating = (float)game.AverageRating,
-      UserRating = rating,
-      Comments = { commentDtos.Select(c => c.MapToGameComment()) },
-    };
-    return response;
+      var game = await repo.GetGameWithRatingsAsync(request.GameId); //contains commentCount which isn't used
+      var commentDtos = await repo.GetGameCommentsForGameAsync(request.GameId);
+
+
+
+      var clientIp = GameServiceHelpers.GetClientIp(context);
+
+      var rating = await repo.GetUserRatingAsync(request.GameId, clientIp);
+      Console.WriteLine($"comment count: {commentDtos.Count()}");
+
+      var response = new GameWithCommentsAndRating
+      {
+        Id = game.Id,
+        Name = game.Name,
+        ReleaseDate = game.ReleaseDate,
+        Publisher = game.Publisher,
+        DevStudio = game.Developer,
+        Platform = game.Platform,
+        Genre = game.Genre,
+        AverageRating = (float)game.AverageRating,
+        UserRating = rating,
+        Comments = { commentDtos.Select(c => c.MapToGameComment()) },
+      };
+      return response;
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine("Exception in GetGameWithCommentsAndRating: " + ex.Message);
+      throw new RpcException(new Status(StatusCode.Internal, "games could not be fetched"));
+    }
+    
   }
   
   public override async Task<Response> AddGame(AddGameRequest request, ServerCallContext context)
   {
-
+    //QUESTION should this also be added to the try catch?
     var gameCreationData = new GameCreationData
     {
       Name = request.Name,
@@ -72,13 +83,22 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
     {
       throw new RpcException(new Status(StatusCode.AlreadyExists, "game already exists"));
     }
-    
-    var insertedRows = await repo.AddGame(gameCreationData);
-    return new Response
+    try
     {
-      Success = insertedRows.insertedGamesCount > 0,
-      Message = $"Added {insertedRows.insertedGamesCount} games, {insertedRows.insertedGenreRelationsCount} game genre relations and {insertedRows.insertedPlatformRelationsCount} game platform relations"
-    };
+      var insertedRows = await repo.AddGame(gameCreationData);
+      return new Response
+      {
+        Success = insertedRows.insertedGamesCount > 0,
+        Message =
+          $"Added {insertedRows.insertedGamesCount} games, {insertedRows.insertedGenreRelationsCount} game genre relations and {insertedRows.insertedPlatformRelationsCount} game platform relations"
+      };
+    }
+    catch(Exception ex)
+    {
+      Console.WriteLine("Exception in AddGame: " + ex.Message);
+      throw new RpcException(new Status(StatusCode.Internal, "games could not be added"));
+    }
+    
   }
 
   public override async Task<Response> UpdateGame(UpdateGameRequest request, ServerCallContext context)
@@ -97,20 +117,30 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
 
     if (gameAlreadyExists)
     {
-      throw new RpcException(new Status(StatusCode.AlreadyExists, "There already exists another game with the updated data"));
+      throw new RpcException(new Status(StatusCode.AlreadyExists,
+        "There already exists another game with the updated data"));
     }
-    
-    var changedRows = await repo.UpdateGame(request.GameId, gameCreationData);
 
-    return new Response
+    try
     {
-      Success = changedRows.updatedGamesCount > 0,
-      Message =
-        $@"Updated {changedRows.updatedGamesCount} games, deleted {changedRows.Item2.deletedPlatformRelationsCount} platform relations,
+      var changedRows = await repo.UpdateGame(request.GameId, gameCreationData);
+
+      return new Response
+      {
+        Success = changedRows.updatedGamesCount > 0,
+        Message =
+          $@"Updated {changedRows.updatedGamesCount} games, deleted {changedRows.Item2.deletedPlatformRelationsCount} platform relations,
         added {changedRows.Item2.addedPlatformRelationsCount} platform relations, left {changedRows.Item2.unchangedPlatformRelationsCount} platform relations unchanged, 
         deleted {changedRows.Item3.deletedGenreRelationsCount} genre relations, added {changedRows.Item3.addedGenreRelationsCount} genre relations,
         left {changedRows.Item3.unchangedGenreRelationsCount} genre relations unchanged,",
-    };
+      };
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine("Exception in UpdateGame: " + ex.Message);
+      throw new RpcException(new Status(StatusCode.Internal, "games could not be updated"));
+    }
+    
   }
 
 
@@ -119,30 +149,41 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
   public override async Task<Response> DeleteGame(DeleteGameRequest request, ServerCallContext context)
   {
     await ExistanceChecker.CheckGameId(repo, request.GameId);
-    
-    var deleteGameResponse = await repo.DeleteGameAsync(request.GameId);
 
-    return new Response
+    try
     {
-      Success = deleteGameResponse.deletedGamesCount > 0,
-      Message =
-        $@"Deleted {deleteGameResponse.deletedGamesCount} games, 
+      //QUESTION how to encapsulate this properly?
+
+
+      var deleteGameResponse = await repo.DeleteGameAsync(request.GameId);
+
+      return new Response
+      {
+        Success = deleteGameResponse.deletedGamesCount > 0,
+        Message =
+          $@"Deleted {deleteGameResponse.deletedGamesCount} games, 
         {deleteGameResponse.deletedGameGenreRelationsCount} game genre relations, 
         {deleteGameResponse.deletedGamePlatformRelationsCount} game platform relations,
         {deleteGameResponse.deletedCommentsCount} comments and
         {deleteGameResponse.deletedGameRatingsCount} ratings."
-    };
-
+      };
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine("Exception in DeleteGame: " + ex.Message);
+      throw new RpcException(new Status(StatusCode.Internal, "games could not be deleted"));
+    }
   }
 
 
   public override async Task<Response> AddRating(GameRatingRequest request, ServerCallContext context)
   {
+    await ExistanceChecker.CheckGameId(repo, request.GameId);
+
     try
     {
-      await ExistanceChecker.CheckGameId(repo, request.GameId);
 
-      var clientIp = GetClientIp(context);
+      var clientIp = GameServiceHelpers.GetClientIp(context);
 
       var rating = new GameRatingUpsertData
         {
@@ -189,141 +230,166 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
       await ExistanceChecker.CheckCommentId(repo, request.ParentId, true);
     }
     
-    var clientIp = GetClientIp(context);
-
-    var comment = new GameCommentUpsertData
+    try
     {
-      GameId = request.GameId,
-      ParentId = request.ParentId,
-      Ip = clientIp,
-      Content = request.Content,
-    };
+      
 
-    var addCommentResponse = await repo.AddGameCommentAsync(comment);
-    return new Response
+      var clientIp = GameServiceHelpers.GetClientIp(context);
+
+      var comment = new GameCommentUpsertData
+      {
+        GameId = request.GameId,
+        ParentId = request.ParentId,
+        Ip = clientIp,
+        Content = request.Content,
+      };
+
+      var addCommentResponse = await repo.AddGameCommentAsync(comment);
+      return new Response
+      {
+        Success = addCommentResponse > 0,
+        Message = addCommentResponse > 0 ? "Comment added" : "No comment added"
+      };
+    }
+    catch (Exception ex)
     {
-      Success = addCommentResponse > 0,
-      Message = addCommentResponse > 0 ? "Comment added" : "No comment added"
-    };
+      Console.WriteLine("Error in AddGameComment: " + ex.Message);
+      throw new RpcException(new Status(StatusCode.Internal, "Add game comment failed"));
+    }
+    
   }
 
   public override async Task<Response> DeleteGameComment(DeleteGameCommentRequest request, ServerCallContext context)
   {
     await ExistanceChecker.CheckCommentId(repo,  request.CommentId, false);
-    
-    var clientIp = GetClientIp(context);
-    var commentIp = await repo.GetGameCommentIpAsync(request.CommentId);
 
-    if (clientIp != commentIp)
+    try
     {
+      var clientIp = GameServiceHelpers.GetClientIp(context);
+      var commentIp = await repo.GetGameCommentIpAsync(request.CommentId);
+
+      if (clientIp != commentIp)
+      {
+        return new Response
+        {
+          Success = false,
+          Message = "Cannot delete other users comments"
+        };
+      }
+
+      if (request.ParentId != null)
+      {
+        var parentResponse = await repo.SoftDeleteGameCommentAsync(request.CommentId);
+        return new Response
+        {
+          Success = parentResponse > 0,
+          Message = parentResponse > 0 ? "Comment deleted" : "No comment deleted"
+        };
+      }
+
+      var response = await repo.HardDeleteGameCommentAsync(request.CommentId);
       return new Response
       {
-        Success = false,
-        Message = "Cannot delete other users comments"
+        Success = response > 0,
+        Message = response > 0 ? "Comment deleted" : "No comment deleted"
       };
     }
-
-    if (request.ParentId != null)
+    catch (Exception ex)
     {
-      var parentResponse = await repo.SoftDeleteGameCommentAsync(request.CommentId);
-      return new Response
-      {
-        Success = parentResponse > 0,
-        Message = parentResponse > 0 ? "Comment deleted" : "No comment deleted"
-      };
+      Console.WriteLine("Error in DeleteGameComment: " + ex.Message);
+      throw new RpcException(new Status(StatusCode.Internal, "Delete game comment failed"));
     }
-    
-    var response = await repo.HardDeleteGameCommentAsync(request.CommentId);
-    return new Response
-    {
-      Success = response > 0,
-      Message = response > 0 ? "Comment deleted" : "No comment deleted"
-    };
-    
   }
 
   public override async Task<Response> UpdateGameComment(UpdateGameCommentRequest request, ServerCallContext context)
   {
     await ExistanceChecker.CheckCommentId(repo, request.CommentId, false);
-    
-    var clientIp = GetClientIp(context);
-    var commentIp = await repo.GetGameCommentIpAsync(request.CommentId);
 
-    if (clientIp != commentIp)
+    try
     {
+      var clientIp = GameServiceHelpers.GetClientIp(context);
+      var commentIp = await repo.GetGameCommentIpAsync(request.CommentId);
+
+      if (clientIp != commentIp)
+      {
+        //QUESTION should this be handled by an Exception?
+        return new Response
+        {
+          Success = false,
+          Message = "Cannot edit other users comments"
+        };
+      }
+
+      var comment = new GameCommentUpsertData
+      {
+        Id = request.CommentId,
+        Content = request.Content,
+      };
+
+      var response = await repo.UpdateGameCommentAsync(comment);
+
       return new Response
       {
-        Success = false,
-        Message = "Cannot edit other users comments"
+        Success = response > 0,
+        Message = response > 0 ? "Comment updated" : "No comment updated"
       };
     }
-
-    var comment = new GameCommentUpsertData
+    catch (Exception ex)
     {
-      Id = request.CommentId,
-      Content = request.Content,
-    };
-
-    var response = await repo.UpdateGameCommentAsync(comment);
-
-    return new Response
-    {
-      Success = response > 0,
-      Message = response > 0 ? "Comment updated" : "No comment updated"
-    };
-
+      Console.WriteLine("Error in UpdateGameComment: " + ex.Message);
+      throw new RpcException(new Status(StatusCode.Internal, "Update game comment failed"));
+    }
+    
   }
 
   public override async Task<GameCommentList> GetAllCommentsForGame(GetAllCommentsForGameRequest request,
     ServerCallContext context)
   {
     await ExistanceChecker.CheckGameId(repo, request.GameId);
-    
-    var gameCommentDtos = await repo.GetGameCommentsForGameAsync(request.GameId);
-    var gameCommentList = gameCommentDtos.Select(gc => gc.MapToGameComment());
-    var response = new GameCommentList{GameComments = {gameCommentList}};
-    return response;
+
+    try
+    {
+      var gameCommentDtos = await repo.GetGameCommentsForGameAsync(request.GameId);
+      var gameCommentList = gameCommentDtos.Select(gc => gc.MapToGameComment());
+      var response = new GameCommentList { GameComments = { gameCommentList } };
+      return response;
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine("Error in GetAllCommentsForGame: " + ex.Message);
+      throw new RpcException(new Status(StatusCode.Internal, "GetAll comments failed"));
+    }
   }
 
   public override async Task<GameCreationPresets> GetGameCreationPresets(EmptyMessage request, ServerCallContext context)
   {
-    var developerDtos = await repo.GetAllDevelopersAsync();
-    var publisherDtos = await repo.GetAllPublishersAsync();
-    var genreDtos =  await repo.GetAllGenresAsync();
-    var platformDtos = await repo.GetAllPlatformsAsync();
-    
-    var developers = developerDtos.Select(d => d.MapToDeveloper());
-    var publishers = publisherDtos.Select(d => d.MapToPublisher());
-    var genres =  genreDtos.Select(d => d.MapToGenre());
-    var platforms = platformDtos.Select(d => d.MapToPlatform());
-
-    var response = new GameCreationPresets
+    try
     {
-      Developers = { developers },
-      Publishers = { publishers },
-      Genres = { genres },
-      Platforms = { platforms }
-    };
+      var developerDtos = await repo.GetAllDevelopersAsync();
+      var publisherDtos = await repo.GetAllPublishersAsync();
+      var genreDtos =  await repo.GetAllGenresAsync();
+      var platformDtos = await repo.GetAllPlatformsAsync();
     
-    return response;
+      var developers = developerDtos.Select(d => d.MapToDeveloper());
+      var publishers = publisherDtos.Select(d => d.MapToPublisher());
+      var genres =  genreDtos.Select(d => d.MapToGenre());
+      var platforms = platformDtos.Select(d => d.MapToPlatform());
 
-
-
-  }
-
-
-  private string GetClientIp(ServerCallContext context)
-  {
-    var httpContext = context.GetHttpContext();
-    var clientIp = httpContext.Connection.RemoteIpAddress?.ToString();
-
-    if (clientIp == null)
-    {
-      //note sure which error code would be reasonable, RemoteIpAddress is only null for non TCP connections.
-      //Is this case even possible considering I control the client/ in a GRPC Client in general?
-      throw new RpcException(new Status(StatusCode.Aborted, "Only TCP connections are accepted"));
+      var response = new GameCreationPresets
+      {
+        Developers = { developers },
+        Publishers = { publishers },
+        Genres = { genres },
+        Platforms = { platforms }
+      };
+    
+      return response;
     }
-    return clientIp;
+    catch(Exception ex)
+    {
+      Console.WriteLine("Error in GetGameCreationPresets: " + ex.Message);
+      throw new RpcException(new Status(StatusCode.Internal, "GetGameCreationPresets failed"));
+    }
   }
   
 }

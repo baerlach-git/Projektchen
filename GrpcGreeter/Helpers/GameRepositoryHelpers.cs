@@ -70,7 +70,7 @@ public static class GameRepositoryHelpers
         return await db.ExecuteAsync(sql, platformInsertionData);
     }
     
-    public static async Task<int> InsertGamePlatformRelations(IDbConnection db, int gameId, int[] platformIds)
+    public static async Task<int> InsertGamePlatformRelations(IDbConnection db, int gameId, IEnumerable<int> platformIds)
     {
         var sql = @"
         INSERT INTO Game_Platform
@@ -97,7 +97,7 @@ public static class GameRepositoryHelpers
         return await db.ExecuteAsync(sql, genreInsertionData);
     }
     
-    public static async Task<int> InsertGameGenreRelations(IDbConnection db, int gameId, int[] genreIds)
+    public static async Task<int> InsertGameGenreRelations(IDbConnection db, int gameId, IEnumerable<int> genreIds)
     {
         var sql = @"
         INSERT INTO  Game_Genre
@@ -171,14 +171,17 @@ public static class GameRepositoryHelpers
          
     }
 
-    public static CategorizedIds CategorizeIds(IEnumerable<int> updatedIds, IEnumerable<int> existingIds)
+    private static CategorizedIds CategorizeIds(IEnumerable<int> updatedIds, IEnumerable<int> existingIds)
     {
         var categorizedPlatformIds = new CategorizedIds();
+        
+        var updatedIdList = updatedIds.ToList();
+        var existingIdList = existingIds.ToList();
 
 
-        foreach (var id in updatedIds)
+        foreach (var id in updatedIdList)
         {
-            if (existingIds.Contains(id))
+            if (existingIdList.Contains(id))
             {
                 categorizedPlatformIds.unchanged.Add(id);
             }
@@ -188,11 +191,11 @@ public static class GameRepositoryHelpers
             }
         }
 
-        foreach (var Id in existingIds)
+        foreach (var id in existingIdList)
         {
-            if (!updatedIds.Contains(Id))
+            if (!updatedIdList.Contains(id))
             {
-                categorizedPlatformIds.deleted.Add(Id);
+                categorizedPlatformIds.deleted.Add(id);
             }
         }
         return  categorizedPlatformIds;
@@ -202,7 +205,7 @@ public static class GameRepositoryHelpers
     {
         var sql = "SELECT PlatformId FROM Game_Platform WHERE GameId = @gameId";
         var relatedPlatformIds = await db.QueryAsync<int>(sql, new { gameId });
-        var categorizedPlatformIds = GameRepositoryHelpers.CategorizeIds(platformIds, relatedPlatformIds.ToArray());
+        var categorizedPlatformIds = CategorizeIds(platformIds, relatedPlatformIds.ToArray());
 
         var deletedPlatformRelations = 0;
         var addedPlatformRelations = 0;
@@ -229,7 +232,7 @@ public static class GameRepositoryHelpers
     {
         var sql = "SELECT GenreId FROM Game_Genre WHERE GameId = @gameId";
         var relatedGenreIds = await db.QueryAsync<int>(sql, new { gameId });
-        var categorizedGenreIds = GameRepositoryHelpers.CategorizeIds(genreIds, relatedGenreIds.ToArray());
+        var categorizedGenreIds = CategorizeIds(genreIds, relatedGenreIds.ToArray());
 
         var deletedGenreRelations = 0;
         var addedGenreRelations = 0;
@@ -251,5 +254,6 @@ public static class GameRepositoryHelpers
 
         return (deletedGenreRelations, addedGenreRelations, unchangedGenreRelations);
     }
+    
 }
 
