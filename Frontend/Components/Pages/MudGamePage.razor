@@ -19,7 +19,7 @@ else
             <MudText Typo="Typo.h2">@_gameInfo.Name</MudText>
         </MudCardHeader>
         <MudCardContent>
-          @*<MudRating MaxValue="5" SelectedValueChanged="@(async (rating) => await RateGame(rating))" @SelectedValue="@UserRating" />*@
+          <MudRating MaxValue="5" SelectedValue="@UserRating" SelectedValueChanged="@(rating => RateGame(rating))" />
             <MudText>Average rating: @_gameInfo.AverageRating</MudText>
             <MudText>Comments: @_gameInfo.CommentCount</MudText>
             <MudText>Publisher: @_gameInfo.Publisher</MudText>
@@ -102,7 +102,7 @@ else
     {
         UserRating = rating;
         await GameClient.AddRatingAsync(new GameRatingRequest { GameId = GameId, Rating = rating }, HttpConfig.Headers);
-        //await RefreshData();
+        await RefreshData();
     }
     
     private async Task DeleteGame()
