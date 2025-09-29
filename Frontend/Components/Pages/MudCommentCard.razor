@@ -1,0 +1,79 @@
+@using Frontend.Helpers
+@using GameServiceProtos
+@inject GameService.GameServiceClient GameService
+
+
+<MudCard Outlined="true" Elevation="2" Style="width: 50%; height:fit-content; margin-bottom: 0.5em; margin-top: 0.5em;">
+<MudCardHeader>
+    <MudText>@Comment.Ip @Comment.CreatedAt</MudText>
+</MudCardHeader>
+<MudCardContent>
+    <MudTextField T="string" Variant="Variant.Outlined"  @bind-Text="@Comment.Content" Disabled="@_disabled">
+    </MudTextField>
+</MudCardContent>
+<MudCardActions>
+    <MudStack Row="true">
+        <MudButton Variant="Variant.Text" ButtonType="ButtonType.Button" Color="Color.Primary" OnClick="@ToggleEdit">Edit</MudButton>
+        @if (!_disabled)
+        {
+            <MudButton ButtonType="ButtonType.Button" Variant="Variant.Text" Color="Color.Default" OnClick="@CancelEdit">Cancel</MudButton>
+        }
+        @if (_originalComment != Comment.Content)
+        {
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" OnClick="@SaveEdit">Änderungen Speichern</MudButton>
+
+        }
+        
+        
+    </MudStack>
+    
+    <MudButton Variant="Variant.Text" ButtonType="ButtonType.Button" Color="Color.Warning" OnClick="@DeleteComment">Delete</MudButton>
+    @if (_responseText != null)
+    {
+        <MudText @bind="@_responseText"/>
+    }
+</MudCardActions>
+
+</MudCard>
+
+
+
+@code {
+    [Parameter]
+    public required GameComment Comment { get; set; }
+    bool _disabled  = true;
+    string _originalComment = null!;
+    string? _responseText;
+    
+    
+    private void ToggleEdit()
+    {
+        _disabled = !_disabled;
+    }
+
+    private void CancelEdit()
+    {
+        _disabled = true;
+        Comment.Content = _originalComment;
+    }
+
+    private async Task SaveEdit()
+    {
+        var updateResponse = await GameService.UpdateGameCommentAsync(new UpdateGameCommentRequest { CommentId = Comment.Id, Content = Comment.Content }, HttpConfig.Headers);
+
+        _responseText = updateResponse.Message;
+    }
+    
+    private async Task DeleteComment()
+    {
+        var deleteResponse = await GameService.DeleteGameCommentAsync(new DeleteGameCommentRequest { CommentId = Comment.Id, ParentId = Comment.ParentId }, HttpConfig.Headers);
+        
+        _responseText = deleteResponse.Message;
+    }
+
+    protected override void OnInitialized()
+    {
+        _originalComment = Comment.Content;
+    }
+
+}

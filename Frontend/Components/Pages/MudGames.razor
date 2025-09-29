@@ -4,64 +4,54 @@
 @using GameServiceProtos
 @inject GameService.GameServiceClient GameClient
 
-<h3>MUDGAMES</h3>
-
-
 @if (_gameList == null )
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    @foreach (var game in games)
-    {
-        <MudCard>
-            <MudCardHeader>
-                <MudText>@game.Name</MudText>
-            </MudCardHeader>
-            <MudCardContent>
-                <MudText>
-                    Average Rating: @game.AverageRating
-                </MudText>
-            </MudCardContent>
-        </MudCard>
-    }
-
-
-    <MudDataGrid T="Game" Items="@_gameList.Games"  ReadOnly="true" ExpandSingleRow="false">
-            <Columns>
-               @* <HierarchyColumn T="Game" EnableHeaderToggle="true"/> *@
-                <PropertyColumn Property="x => x.Name" Title="Name"/>
-                <PropertyColumn Property="x => x.ReleaseDate" Title="Release "/>
-                <PropertyColumn Property="x => x.AverageRating" Title="Average Rating"/>
-                <PropertyColumn Property="x => x.CommentCount" Title="#Comments"/>
-                <PropertyColumn Property="x => x.DevStudio" Title="Developer"/>
-                <PropertyColumn Property="x => x.Publisher" Title="Publisher"/>
-                <PropertyColumn Property="x => x.Genre" Title="Genre"/>
-                <PropertyColumn Property="x => x.Platform" Title="Platform"/>
-            </Columns>
-            @*<ChildRowContent>
-                <MudCard>
-                    <MudCardHeader>
-                        <CardHeaderContent>
-                            <MudText Typo="Typo.h6">@context.Item.Name</MudText>
-                        </CardHeaderContent>
-                    </MudCardHeader>
-                    <MudCardContent>
-                        <MudText>Release Year: @context.Item.ReleaseDate</MudText>
-                        <MudText>Average Rating: @context.Item.AverageRating</MudText>
-                        <MudText>#Comments: @context.Item.CommentCount</MudText>
-                        <MudText>Genre: @context.Item.Genre</MudText>
-                        <MudText>Platform: @context.Item.Platform</MudText>
-                        <MudText>Developer: @context.Item.DevStudio</MudText>
-                        <MudText> Publisher: @context.Item.Publisher</MudText>
-                    </MudCardContent>
-                </MudCard>
-            </ChildRowContent>
-            <PagerContent>
-                <MudDataGridPager T="Game"></MudDataGridPager>
-            </PagerContent>*@
-        </MudDataGrid>
+    <MudDataGrid T="Game" Items="@_gameList.Games" ReadOnly="true" ExpandSingleRow="false" SortMode="SortMode.Multiple" QuickFilter="@QuickFilter"
+                 Hideable="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Games</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="SearchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <Columns>
+            <HierarchyColumn T="Game" EnableHeaderToggle="true"/>
+            <PropertyColumn Property="x => x.Name" Title="Name"/>
+            <PropertyColumn Property="x => x.ReleaseDate" Title="Release "/>
+            <PropertyColumn Property="x => x.AverageRating" Title="Average Rating"/>
+            <PropertyColumn Property="x => x.CommentCount" Title="#Comments"/>
+            <PropertyColumn Property="x => x.DevStudio" Title="Developer"/>
+            <PropertyColumn Property="x => x.Publisher" Title="Publisher"/>
+        </Columns>
+        <ChildRowContent>
+            <MudCard>
+                <MudCardHeader Style="color:#0b5ed7">
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6" Color="Color.Primary"><a Href="MudGame/?Id=@context.Item.Id">@context.Item.Name</a> </MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText>Release Year: @context.Item.ReleaseDate</MudText>
+                    <MudText>Average Rating: @context.Item.AverageRating</MudText>
+                    <MudText>#Comments: @context.Item.CommentCount</MudText>
+                    <MudText>Genre: @context.Item.Genre</MudText>
+                    <MudText>Platform: @context.Item.Platform</MudText>
+                    <MudText>Developer: @context.Item.DevStudio</MudText>
+                    <MudText> Publisher: @context.Item.Publisher</MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    
+                </MudCardActions>
+            </MudCard>
+        </ChildRowContent>
+        <PagerContent>
+            <MudDataGridPager T="Game"></MudDataGridPager>
+        </PagerContent>
+    </MudDataGrid>
 
     
 }
@@ -70,6 +60,28 @@ else
     private GameList? _gameList;
 
     List<Game> games { get; set; }
+    
+    string? SearchString { get; set; }
+    
+    // quick filter - filter globally across multiple columns with the same input
+    private Func<Game, bool> QuickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (x.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (x.ReleaseDate.ToString().Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (x.Publisher.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (x.DevStudio.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (x.Platform.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (x.Genre.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    };
     
     
 

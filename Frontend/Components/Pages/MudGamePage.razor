@@ -16,10 +16,10 @@ else
 {
     <MudCard Outlined="true">
         <MudCardHeader>
-            <MudText>@_gameInfo.Name</MudText>
+            <MudText Typo="Typo.h2">@_gameInfo.Name</MudText>
         </MudCardHeader>
         <MudCardContent>
-           @*<MudRating MaxValue="5" SelectedValueChanged="@(async (rating) => await RateGame(rating))" @bind-SelectedValue="@UserRating" />*@
+          @*<MudRating MaxValue="5" SelectedValueChanged="@(async (rating) => await RateGame(rating))" @SelectedValue="@UserRating" />*@
             <MudText>Average rating: @_gameInfo.AverageRating</MudText>
             <MudText>Comments: @_gameInfo.CommentCount</MudText>
             <MudText>Publisher: @_gameInfo.Publisher</MudText>
@@ -48,16 +48,7 @@ else
     
     @foreach(var comment in _comments)
     {
-        <MudCard Outlined="true" Elevation="2" Style="width: 50%; height:fit-content; margin-bottom: 0.5em; margin-top: 0.5em;">
-            <MudCardHeader>
-                <MudText>@comment.Ip @comment.CreatedAt</MudText>
-            </MudCardHeader>
-            <MudCardContent>
-                <MudText>
-                    @comment.Content
-                </MudText>
-            </MudCardContent>
-        </MudCard>
+        <MudCommentCard Comment="comment"></MudCommentCard>
     }
     
 }
@@ -107,9 +98,9 @@ else
         };
     }
 
-
     private async Task RateGame(int rating)
     {
+        UserRating = rating;
         await GameClient.AddRatingAsync(new GameRatingRequest { GameId = GameId, Rating = rating }, HttpConfig.Headers);
         //await RefreshData();
     }

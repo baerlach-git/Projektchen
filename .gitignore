@@ -4,4 +4,6 @@
 /GrpcGreeterClient/obj
 /Frontend/bin
 /Frontend/obj
+/Shared/bin
+/Shared/obj
 /.vs

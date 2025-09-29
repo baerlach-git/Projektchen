@@ -23,11 +23,7 @@ else
     <MudNumericField @bind-Value="@ReleaseDate"  Variant="Variant.Outlined" T="int"></MudNumericField>
     <MudSelect @bind-Value="PublisherId"
                Variant="Variant.Outlined"
-               Label="Publisher"
-               FitContent="true"
-               Disabled="false"
-               ReadOnly="true"
-               Placeholder="">
+               Label="Publisher">
         @foreach (var pub in _publishers)
         {
             <MudSelectItem Value="@pub.Id">@pub.Name</MudSelectItem>
@@ -36,9 +32,6 @@ else
     <MudSelect @bind-Value="DeveloperId"
                Variant="Variant.Outlined"
                Label="Developer"
-               FitContent="true"
-               Disabled="false"
-               ReadOnly="true"
                Placeholder="">
         @foreach (var dev in _developers)
         {
@@ -46,27 +39,30 @@ else
         }
     </MudSelect>
     <MudSelect @bind-SelectedValues="@PlatformIds" MultiSelection="true" T="int" Variant="Variant.Outlined"
-               Label="Platform"
-               FitContent="true"
-               Disabled="false"
-               ReadOnly="true">
+               Label="Platform">
         @foreach (var plf in _platforms)
         {
             <MudSelectItem T="int" Value="@plf.Id">@plf.Name</MudSelectItem>
         }
     </MudSelect>
     <MudSelect @bind-SelectedValues="@GenreIds" MultiSelection="true" T="int" Variant="Variant.Outlined"
-               Label="Genre"
-               FitContent="true"
-               Disabled="false"
-               ReadOnly="true">
+               Label="Genre">
         @foreach (var gen in _genres)
         {
             <MudSelectItem T="int" Value="@gen.Id">@gen.Name</MudSelectItem>
         }
     </MudSelect>
-
-}
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async()=>await Submit())">Submit</MudButton>
+    
+    @if(_validationResults != null && _validationResults.Count > 0)
+    {
+        foreach (var val in _validationResults)
+        {
+            <MudText>
+                @val.ErrorMessage
+            </MudText>
+        }
+    }
 
 
 
@@ -83,7 +79,7 @@ else
     List<(int Id, string Name)>? _developers;
     List<(int Id, string Name)>? _platforms;
 
-    ICollection<ValidationResult> _validationResults;
+    ICollection<ValidationResult>? _validationResults;
     
     async Task Submit()
     {
