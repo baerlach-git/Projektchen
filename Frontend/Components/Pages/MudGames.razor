@@ -2,15 +2,16 @@
 @rendermode InteractiveServer
 @using Frontend.Helpers
 @using GameServiceProtos
+@using Shared.Models
 @inject GameService.GameServiceClient GameClient
 
-@if (_gameList == null )
+@if (_games == null )
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <MudDataGrid T="Game" Items="@_gameList.Games" ReadOnly="true" ExpandSingleRow="false" SortMode="SortMode.Multiple" QuickFilter="@QuickFilter"
+    <MudDataGrid T="Game" Items="@_games.Games_" ReadOnly="true" ExpandSingleRow="false" SortMode="SortMode.Multiple" QuickFilter="@QuickFilter"
                  Hideable="true">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Games</MudText>
@@ -24,14 +25,14 @@ else
             <PropertyColumn Property="x => x.ReleaseDate" Title="Release "/>
             <PropertyColumn Property="x => x.AverageRating" Title="Average Rating"/>
             <PropertyColumn Property="x => x.CommentCount" Title="#Comments"/>
-            <PropertyColumn Property="x => x.DevStudio" Title="Developer"/>
+            <PropertyColumn Property="x => x.Developer" Title="Developer"/>
             <PropertyColumn Property="x => x.Publisher" Title="Publisher"/>
         </Columns>
         <ChildRowContent>
             <MudCard>
                 <MudCardHeader Style="color:#0b5ed7">
                     <CardHeaderContent>
-                        <MudText Typo="Typo.h6" Color="Color.Primary"><a Href="MudGame/?Id=@context.Item.Id">@context.Item.Name</a> </MudText>
+                        <MudLink Href="@($"/MudGame/?Id={context.Item.Id}")" Typo="Typo.h6" Color="Color.Secondary">lalala</MudLink>
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent>
@@ -40,7 +41,7 @@ else
                     <MudText>#Comments: @context.Item.CommentCount</MudText>
                     <MudText>Genre: @context.Item.Genre</MudText>
                     <MudText>Platform: @context.Item.Platform</MudText>
-                    <MudText>Developer: @context.Item.DevStudio</MudText>
+                    <MudText>Developer: @context.Item.Developer</MudText>
                     <MudText> Publisher: @context.Item.Publisher</MudText>
                 </MudCardContent>
                 <MudCardActions>
@@ -57,12 +58,11 @@ else
 }
 
 @code {
-    private GameList? _gameList;
 
-    List<Game> games { get; set; }
-    
+    GameServiceProtos.Games _games;
+
     string? SearchString { get; set; }
-    
+
     // quick filter - filter globally across multiple columns with the same input
     private Func<Game, bool> QuickFilter => x =>
     {
@@ -74,7 +74,7 @@ else
             return true;
         if (x.Publisher.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
             return true;
-        if (x.DevStudio.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+        if (x.Developer.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
             return true;
         if (x.Platform.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
             return true;
@@ -82,15 +82,17 @@ else
             return true;
         return false;
     };
-    
-    
 
-    
+
+
+
+
+
 
     protected override async Task OnInitializedAsync()
     {
-        _gameList = await GameClient.GetGamesAsync(new EmptyMessage { }, HttpConfig.Headers);
-        games = _gameList.Games.ToList();
-    }   
+        _games = await GameClient.GetGamesAsync(new EmptyMessage { }, HttpConfig.Headers);
+
+    }
 
 }

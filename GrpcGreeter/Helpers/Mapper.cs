@@ -16,13 +16,25 @@ public static class Mapper
             Name = gameDto.Name,
             ReleaseDate = gameDto.ReleaseDate,
             Publisher = gameDto.Publisher,
-            DevStudio = gameDto.Developer,
+            Developer = gameDto.Developer,
             Platform = gameDto.Platform,
             Genre = gameDto.Genre,
-            AverageRating = (float)gameDto.AverageRating,
+            AverageRating = gameDto.AverageRating != null ? (float)gameDto.AverageRating.Value : null,
             CommentCount = (int)gameDto.CommentCount,
+            UserRating =  gameDto.UserRating,
         };
     }
+
+    public static GameRating MapToGameRating(this GameRatingDto ratingDto)
+    {
+        return new GameRating
+        {
+            GameId = ratingDto.GameId,
+            Rating = ratingDto.Rating,
+        };
+    }
+    
+    
 
     public static GameComment MapToGameComment(this GameCommentDto comment)
     {

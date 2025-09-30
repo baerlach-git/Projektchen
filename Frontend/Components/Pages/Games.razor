@@ -100,7 +100,7 @@ h1:focus {
     </style>
 
 @code {
-    private GameList? _gameList;
+    private GameServiceProtos.Games? _gameList;
 
     private List<GameServiceProtos.Game[]>? _pages;
     private GameServiceProtos.Game[]? _currentPage;
@@ -137,7 +137,7 @@ h1:focus {
     protected override async Task OnInitializedAsync()
     {
         _gameList = await GameClient.GetGamesAsync(new EmptyMessage { }, HttpConfig.Headers);
-        _pages = _gameList.Games.Chunk(20).ToList();
+        _pages = _gameList.Games_.Chunk(20).ToList();
         _maxPageIndex = _pages.Count();
         _currentPageIndex = 0;
         _currentPage = _pages[_currentPageIndex];

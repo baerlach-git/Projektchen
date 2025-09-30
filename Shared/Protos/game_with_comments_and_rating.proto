@@ -14,7 +14,7 @@ message GameWithCommentsAndRating {
   string dev_studio = 5;
   string platform = 6;
   string genre = 7;
-  float average_rating = 8;
+  google.protobuf.FloatValue average_rating = 8;
   google.protobuf.Int32Value user_rating = 9;
   repeated GameComment comments  = 10;
 };

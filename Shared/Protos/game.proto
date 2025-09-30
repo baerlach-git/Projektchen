@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/wrappers.proto";
+
 option csharp_namespace = "GameServiceProtos";
 
 message Game {
@@ -7,9 +9,10 @@ message Game {
   string name = 2;
   int32 release_date = 3;
   string publisher = 4;
-  string dev_studio = 5;
+  string developer = 5;
   string platform = 6;
   string genre = 7;
-  float average_rating = 8;
+  google.protobuf.FloatValue average_rating = 8;
   int32 comment_count = 9;
+  google.protobuf.Int32Value user_rating = 10;
 };

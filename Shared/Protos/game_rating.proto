@@ -4,8 +4,7 @@ import "google/protobuf/wrappers.proto";
 
 option csharp_namespace = "GameServiceProtos";
 
-
-message DeleteGameCommentRequest{
-  int32 comment_id = 1;
-  google.protobuf.Int32Value parent_id = 2;
-}
+message GameRating {
+  int32 game_id = 1;
+  google.protobuf.Int32Value rating = 2;
+};

@@ -1,45 +1,45 @@
 using Grpc.Core;
 using GameServiceProtos;
-using Google.Protobuf.WellKnownTypes;
 using GrpcGreeter.Helpers;
 using Shared.Models;
-using MySqlX.XDevAPI.Relational;
 
 namespace GrpcGreeter.Services;
 
 
 public class GameService(GameRepository repo) : GameServiceProtos.GameService.GameServiceBase
 {
-  public override async Task<GameList> GetGames(EmptyMessage request, ServerCallContext context)
+  public override async Task<Games> GetGames(EmptyMessage request, ServerCallContext context)
   {
     try
     {
-      var gameDtos = await repo.GetGamesWithRatingsAsync();
-      var gameList = gameDtos.Select(g => g.MapToGame());
-      var response = new GameList { Games = { gameList } };
+      var clientIp = GameServiceHelpers.GetClientIp(context);
+      var gameDtos = await repo.GetGamesAndRatingsAsync(clientIp);
+      var games = gameDtos.Select(g => g.MapToGame());
+      var response = new Games { Games_ = { games } };
       return response;
     }
     
     catch(Exception ex)
     {
       Console.WriteLine("Exception in GetGamesAsync: " + ex.Message);
-      throw new RpcException(new Status(StatusCode.Internal, "games could not be fetched"));
+      throw;
     }
   }
-  public override async Task<GameWithCommentsAndRating> GetGameWithCommentsAndRating(GameWithCommentsAndRatingRequest request, ServerCallContext context)
+  public override async Task<GameWithCommentsAndRating?> GetGameWithCommentsAndRating(GameWithCommentsAndRatingRequest request, ServerCallContext context)
   {
     try
     {
-      var game = await repo.GetGameWithRatingsAsync(request.GameId); //contains commentCount which isn't used
-      var commentDtos = await repo.GetGameCommentsForGameAsync(request.GameId);
-
-
-
       var clientIp = GameServiceHelpers.GetClientIp(context);
+      
+      var gameExists = await repo.IdExistsInTableAsync(request.GameId, TableNames.Game);
+      if (!gameExists)
+      {
+        return null;
+      }
 
-      var rating = await repo.GetUserRatingAsync(request.GameId, clientIp);
-      Console.WriteLine($"comment count: {commentDtos.Count()}");
-
+      var game = await repo.GetGameAsync(request.GameId, clientIp); //contains commentCount which isn't used
+      var commentDtos = await repo.GetGameCommentsForGameAsync(request.GameId);
+      
       var response = new GameWithCommentsAndRating
       {
         Id = game.Id,
@@ -49,8 +49,8 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
         DevStudio = game.Developer,
         Platform = game.Platform,
         Genre = game.Genre,
-        AverageRating = (float)game.AverageRating,
-        UserRating = rating,
+        AverageRating = game.AverageRating != null ? (float?)game.AverageRating.Value : null,
+        UserRating = game.UserRating,
         Comments = { commentDtos.Select(c => c.MapToGameComment()) },
       };
       return response;

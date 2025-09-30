@@ -3,9 +3,9 @@
 @inject GameService.GameServiceClient GameService
 
 
-<MudCard Outlined="true" Elevation="2" Style="width: 50%; height:fit-content; margin-bottom: 0.5em; margin-top: 0.5em;">
+<MudCard Outlined="true" Elevation="2" Style="width: 100%; height:fit-content; margin-bottom: 0.5em; margin-top: 0.5em;">
 <MudCardHeader>
-    <MudText>@Comment.Ip @Comment.CreatedAt</MudText>
+    <MudText>@Comment.CreatedAt</MudText>
 </MudCardHeader>
 <MudCardContent>
     <MudTextField T="string" Variant="Variant.Outlined"  @bind-Text="@Comment.Content" Disabled="@_disabled">

@@ -4,6 +4,6 @@ import "game.proto";
 
 option csharp_namespace = "GameServiceProtos";
 
-message GameList {
+message Games {
   repeated Game games = 1;
 }

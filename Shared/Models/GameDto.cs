@@ -7,6 +7,7 @@ public record GameDto(
     string Developer,
     string Platform,
     string Genre,
-    decimal AverageRating,
+    int? UserRating,
+    decimal? AverageRating,
     long CommentCount
 );

@@ -16,37 +16,39 @@ public class GameRepository
   
   private IDbConnection Connection => new MySqlConnection(_connectionString);
 
-  public async Task<IEnumerable<GameDto>> GetGamesWithRatingsAsync(Pagination? pagination = null)
+  public async Task<IEnumerable<GameDto>>GetGamesAndRatingsAsync(string clientIp, Pagination? pagination = null)
   {
-    var paginationInsert = pagination == null ? "" : $"LIMIT {pagination.Offset}, {pagination.Limit}";
+    var paginationString = pagination == null ? "" : $"LIMIT {pagination.Offset}, {pagination.Limit}";
  
     var query = @$"
-      SELECT
-        g.Id AS Id, g.Name AS Name, g.ReleaseDate AS ReleaseDate,
-        p.Name AS Publisher,
-        d.Name AS Developer,
-        GROUP_CONCAT(DISTINCT pl.Name) AS Platform,
-        GROUP_CONCAT(DISTINCT gen.Name) AS Genre,
-        AVG(r.Rating) AS AverageRating,
-        COUNT(DISTINCT c.Id) AS CommentCount
-      FROM Game g
-        JOIN Publisher p ON g.PublisherId = p.Id
-        JOIN Developer d ON g.DeveloperId = d.Id
-        JOIN Game_Platform gm ON g.Id = gm.GameId
-        JOIN Platform pl ON gm.PlatformId = pl.Id
-        JOIN Game_Genre gg ON g.Id = gg.GameId
-        JOIN Genre gen ON gen.ID = gg.GenreId
-        LEFT OUTER JOIN GameRating r ON g.Id = r.GameId
-        LEFT OUTER JOIN GameComment c ON g.Id = c.GameId WHERE c.Deleted = 0
-      GROUP BY Id, Name, ReleaseDate, Publisher, Developer 
-      {paginationInsert}
+        SELECT
+          g.Id AS Id, g.Name AS Name, g.ReleaseDate AS ReleaseDate,
+          p.Name AS Publisher,
+          d.Name AS Developer,
+          GROUP_CONCAT(DISTINCT pl.Name) AS Platform,
+          GROUP_CONCAT(DISTINCT gen.Name) AS Genre,
+          ur.Rating AS UserRating,
+          AVG(r.Rating) AS AverageRating,
+          COUNT(DISTINCT c.Id)  AS CommentCount
+        FROM Game g
+         LEFT JOIN Publisher p ON g.PublisherId = p.Id
+         LEFT JOIN Developer d ON g.DeveloperId = d.Id
+         LEFT JOIN Game_Platform gm ON g.Id = gm.GameId
+         LEFT JOIN Platform pl ON gm.PlatformId = pl.Id
+         LEFT JOIN Game_Genre gg ON g.Id = gg.GameId
+         LEFT JOIN Genre gen ON gen.ID = gg.GenreId
+         LEFT  JOIN GameRating r ON g.Id = r.GameId
+         LEFT JOIN GameRating ur ON g.Id = ur.GameId AND ur.Ip = @clientIp
+         LEFT  JOIN GameComment c ON g.Id = c.GameId AND c.Deleted
+        GROUP BY Id, Name, ReleaseDate, Publisher, Developer, UserRating
+        {paginationString}
       ;";
     using var db = Connection;
-    var result = await db.QueryAsync<GameDto>(query);
-    return result;
+    var games = await db.QueryAsync<GameDto>(query, new{clientIp});
+    return games;
   }
   
-  public async Task<GameDto?> GetGameWithRatingsAsync(int gameId)
+  public async Task<GameDto> GetGameAsync(int gameId, string clientIp)
   {
     var query = @"
       SELECT
@@ -55,22 +57,24 @@ public class GameRepository
         d.Name AS Developer,
         GROUP_CONCAT(DISTINCT pl.Name) AS Platform,
         GROUP_CONCAT(DISTINCT gen.Name) AS Genre,
+        ur.Rating AS UserRating,
         AVG(r.Rating) AS AverageRating,
         COUNT(DISTINCT c.Id) AS CommentCount
-      FROM Game g
-        JOIN Publisher p ON g.PublisherId = p.Id
-        JOIN Developer d ON g.DeveloperId = d.Id
-        JOIN Game_Platform gm ON g.Id = gm.GameId
-        JOIN Platform pl ON gm.PlatformId = pl.Id
-        JOIN Game_Genre gg ON g.Id = gg.GameId
-        JOIN Genre gen ON gen.ID = gg.GenreId
-        LEFT OUTER JOIN GameRating r ON g.Id = r.GameId
-        LEFT OUTER JOIN GameComment c ON g.Id = c.GameId WHERE c.Deleted = 0
+         FROM Game g
+        LEFT JOIN Publisher p ON g.PublisherId = p.Id
+        LEFT JOIN Developer d ON g.DeveloperId = d.Id
+        LEFT JOIN Game_Platform gm ON g.Id = gm.GameId
+        LEFT JOIN Platform pl ON gm.PlatformId = pl.Id
+        LEFT JOIN Game_Genre gg ON g.Id = gg.GameId
+        LEFT JOIN Genre gen ON gen.ID = gg.GenreId
+        LEFT JOIN GameRating r ON g.Id = r.GameId
+        LEFT JOIN GameRating ur ON g.Id = ur.GameId AND ur.Ip = @clientIp
+        LEFT JOIN GameComment c ON g.Id = c.GameId WHERE c.Deleted = 0
         AND g.Id = @gameId
-        GROUP BY Id, Name, ReleaseDate, Publisher, Developer;
+        GROUP BY Id, Name, ReleaseDate, Publisher, Developer, UserRating;
       ";
     using var db = Connection;
-    var result = await db.QueryFirstAsync<GameDto>(query, new { gameId });
+    var result = await db.QueryFirstAsync<GameDto>(query, new { gameId, clientIp });
     //var result = await db.ExecuteScalarAsync<GameDto?>(query,  new { gameId });
     return result;
   }
@@ -143,15 +147,26 @@ public class GameRepository
     return (deletedGamesCount, deletedGamePlatformRelationsCount, deletedGameGenreRelationsCount, deletedCommentsCount, deletedGameRatingsCount);
   }
   
-  public async Task<int?> GetUserRatingAsync(int gameId, string userIp)
+  public async Task<IEnumerable<int?>> GetUserRatingsAsync(int[] gameIds, string userIp)
   {
     var sql = @"
       SELECT Rating
       FROM GameRating
-      WHERE GameId = @gameId AND Ip = @userIp
+      WHERE GameId IN @gameIds AND Ip = @userIp
     ";
     using var db = Connection;
-    return await db.ExecuteScalarAsync<int?>(sql, new { gameId, userIp });
+    return await db.QueryAsync<int?>(sql, new { gameIds, userIp });
+  }
+  
+  public async Task<IEnumerable<GameRatingDto>> GetAllUserRatingsAsync(string userIp)
+  {
+    var sql = @"
+      SELECT GameId, Rating
+      FROM GameRating
+      WHERE Ip = @userIp
+    ";
+    using var db = Connection;
+    return await db.QueryAsync<GameRatingDto>(sql, new { userIp });
   }
   
   
