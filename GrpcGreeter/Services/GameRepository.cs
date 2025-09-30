@@ -36,8 +36,8 @@ public class GameRepository
         JOIN Platform pl ON gm.PlatformId = pl.Id
         JOIN Game_Genre gg ON g.Id = gg.GameId
         JOIN Genre gen ON gen.ID = gg.GenreId
-        JOIN GameRating r ON g.Id = r.GameId
-        JOIN GameComment c ON g.Id = c.GameId WHERE c.Deleted = 0
+        LEFT OUTER JOIN GameRating r ON g.Id = r.GameId
+        LEFT OUTER JOIN GameComment c ON g.Id = c.GameId WHERE c.Deleted = 0
       GROUP BY Id, Name, ReleaseDate, Publisher, Developer 
       {paginationInsert}
       ;";
@@ -64,8 +64,8 @@ public class GameRepository
         JOIN Platform pl ON gm.PlatformId = pl.Id
         JOIN Game_Genre gg ON g.Id = gg.GameId
         JOIN Genre gen ON gen.ID = gg.GenreId
-        JOIN GameRating r ON g.Id = r.GameId
-        JOIN GameComment c ON g.Id = c.GameId WHERE c.Deleted = 0
+        LEFT OUTER JOIN GameRating r ON g.Id = r.GameId
+        LEFT OUTER JOIN GameComment c ON g.Id = c.GameId WHERE c.Deleted = 0
         AND g.Id = @gameId
         GROUP BY Id, Name, ReleaseDate, Publisher, Developer;
       ";

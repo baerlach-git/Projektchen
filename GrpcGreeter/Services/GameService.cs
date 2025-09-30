@@ -28,7 +28,6 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
   }
   public override async Task<GameWithCommentsAndRating> GetGameWithCommentsAndRating(GameWithCommentsAndRatingRequest request, ServerCallContext context)
   {
-    //QUESTION: how to properly handle exceptions?
     try
     {
       var game = await repo.GetGameWithRatingsAsync(request.GameId); //contains commentCount which isn't used
@@ -66,7 +65,6 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
   
   public override async Task<Response> AddGame(AddGameRequest request, ServerCallContext context)
   {
-    //QUESTION should this also be added to the try catch?
     var gameCreationData = new GameCreationData
     {
       Name = request.Name,
@@ -148,11 +146,22 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
 
   public override async Task<Response> DeleteGame(DeleteGameRequest request, ServerCallContext context)
   {
-    await ExistanceChecker.CheckGameId(repo, request.GameId);
+    var gameExists = await repo.IdExistsInTableAsync(request.GameId, TableNames.Game);
+    if (!gameExists)
+    {
+      //maybe use an exception anyway? The DeleteGame method would be called via a Button in the frontend on a game page
+      //or in a game list for a specific game, so the game should definitely exist. If it cannot be found, something must have went wrong
+      
+      //throw new RpcException(new Status(StatusCode.NotFound, "The game cannot be found"));
+      return new Response()
+      {
+        Success = false,
+        Message = $"Game with id {request.GameId} not found"
+      };
+    }
 
     try
     {
-      //QUESTION how to encapsulate this properly?
 
 
       var deleteGameResponse = await repo.DeleteGameAsync(request.GameId);
@@ -233,7 +242,6 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
     try
     {
       
-
       var clientIp = GameServiceHelpers.GetClientIp(context);
 
       var comment = new GameCommentUpsertData
@@ -269,7 +277,7 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
       var commentIp = await repo.GetGameCommentIpAsync(request.CommentId);
 
       if (clientIp != commentIp)
-      {
+      {//exception
         return new Response
         {
           Success = false,
@@ -312,12 +320,7 @@ public class GameService(GameRepository repo) : GameServiceProtos.GameService.Ga
 
       if (clientIp != commentIp)
       {
-        //QUESTION should this be handled by an Exception?
-        return new Response
-        {
-          Success = false,
-          Message = "Cannot edit other users comments"
-        };
+        throw new RpcException(new Status(StatusCode.PermissionDenied, "caller Ip does not match commenter Ip"));
       }
 
       var comment = new GameCommentUpsertData
