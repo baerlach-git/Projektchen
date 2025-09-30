@@ -21,7 +21,7 @@ public static class Mapper
             Genre = gameDto.Genre,
             AverageRating = gameDto.AverageRating != null ? (float)gameDto.AverageRating.Value : null,
             CommentCount = (int)gameDto.CommentCount,
-            UserRating =  gameDto.UserRating,
+            UserRating =  gameDto.UserRating ?? 0,
         };
     }
 

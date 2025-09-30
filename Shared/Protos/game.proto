@@ -14,5 +14,5 @@ message Game {
   string genre = 7;
   google.protobuf.FloatValue average_rating = 8;
   int32 comment_count = 9;
-  google.protobuf.Int32Value user_rating = 10;
+  int32 user_rating = 10;
 };

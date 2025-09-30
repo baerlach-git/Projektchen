@@ -1,0 +1,37 @@
+@using Frontend.Helpers
+@using GameServiceProtos
+
+
+<MudDialog >
+    <TitleContent>
+        Deleting
+    </TitleContent>
+    <DialogContent>
+        <MudText>Are you sure you want to delete the game @GameName?</MudText> 
+        <MudText>This Action cannot be reversed!</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Warning" OnClick="@Submit">Delete @GameName</MudButton>
+    </DialogActions>
+
+</MudDialog>
+
+
+
+
+@code {
+    [CascadingParameter] public required IMudDialogInstance MudDialog { get; set; }
+    [Parameter] public required string GameName { get; set; }
+    [Parameter] public required Task DeleteGame { get; set; }
+
+    
+    private async Task Submit()
+    {
+        await DeleteGame;
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+
+
+
+}
