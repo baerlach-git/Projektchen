@@ -108,7 +108,7 @@ else
         await RefreshData();
     }
 
-    private Task OpenDeleteDialogAsync(int gameId, string gameName)
+    private async Task OpenDeleteDialogAsync(int gameId, string gameName)
     {
         var parameters = new DialogParameters<DeleteGameDialog>
         {
@@ -117,13 +117,17 @@ else
         };
         var options = new DialogOptions { CloseOnEscapeKey = true, CloseButton = true};
         
-        return DialogService.ShowAsync<DeleteGameDialog>("Delete Game", parameters,  options);
+        var dialog = await DialogService.ShowAsync<DeleteGameDialog>("Delete Game", parameters,  options);
+        var result = await dialog.Result;
+         if (result is { Canceled: false })
+         {
+             await RefreshData();
+         }
     }
     
-    private async Task DeleteGame(int gameId)
+    private async Task<Response> DeleteGame(int gameId)
     {
-        await GameClient.DeleteGameAsync(new DeleteGameRequest() { GameId = gameId}, HttpConfig.Headers);
-        await RefreshData();
+        return await GameClient.DeleteGameAsync(new DeleteGameRequest() { GameId = gameId}, HttpConfig.Headers);
     }
 
     protected override async Task OnInitializedAsync()

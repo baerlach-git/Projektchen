@@ -1,5 +1,5 @@
-@using Frontend.Helpers
 @using GameServiceProtos
+@inject ISnackbar Snackbar
 
 
 <MudDialog >
@@ -22,13 +22,25 @@
 @code {
     [CascadingParameter] public required IMudDialogInstance MudDialog { get; set; }
     [Parameter] public required string GameName { get; set; }
-    [Parameter] public required Task DeleteGame { get; set; }
+    [Parameter] public required Task<Response> DeleteGame { get; set; }
+    [Parameter] public required Task RefreshData { get; set; }
 
     
     private async Task Submit()
     {
-        await DeleteGame;
+        var response = await DeleteGame;
+        if (response.Success)
+        {
+            Snackbar.Add($"{GameName} deleted", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add($"{GameName} could not not be deleted", Severity.Error);
+        }
         MudDialog.Close(DialogResult.Ok(true));
+
+
+
     }
 
 
