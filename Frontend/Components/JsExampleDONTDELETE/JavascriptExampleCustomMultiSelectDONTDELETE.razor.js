@@ -5,7 +5,7 @@ let counter = 0;
 export function initComponent(dotNetRef, id){
     counter++;
     console.log("init execution counter:", counter);
-    
+
 
     const transformToMultiSelect = function (elem) {
         let optionsLabel = elem.getAttribute("optionsLabel")
@@ -69,10 +69,10 @@ export function initComponent(dotNetRef, id){
 
         elem.replaceWith(parent);
     };
-    
+
     let input = document.getElementById(id);
     transformToMultiSelect(input);
-    
+
 }
 
 

@@ -5,15 +5,11 @@ using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-// Add services to the container.
 builder.Services
     .AddRazorComponents()
     .AddInteractiveServerComponents();
 
-//Mudblazor
 builder.Services.AddMudServices();
-//Needed to access http headers and thus ip addresses
 builder.Services.AddHttpContextAccessor();
 //not really necessary in this case, only needed when deploying on remote containers like azure containers and
 //running multiple instances of the server app on several containers at once
@@ -33,14 +29,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-/*var headerOptions = new ForwardedHeadersOptions
-{
-	ForwardedHeaders = ForwardedHeaders.All
-};
-headerOptions.KnownNetworks.Clear();
-headerOptions.KnownProxies.Clear();
-app.UseForwardedHeaders(headerOptions);
-*/
+
 app.UseHttpsRedirection();
 
 

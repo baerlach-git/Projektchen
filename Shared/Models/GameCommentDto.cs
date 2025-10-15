@@ -14,4 +14,4 @@ public record GameCommentDto(
     );
     
     
-    //(System.Int32 Id, System.Int32 GameId, System.Int32 ParentId, System.String Ip, System.String Content, System.Boolean Deleted, System.Boolean Edited, System.DateTime CreatedAt, System.DateTime UpdatedAt) is required for GrpcGreeter.Models.GameCommentDto materiali
+    //(System.Int32 Id, System.Int32 GameId, System.Int32 ParentId, System.String Ip, System.String Content, System.Boolean Deleted, System.Boolean Edited, System.DateTime CreatedAt, System.DateTime UpdatedAt) is required for Backend.Models.GameCommentDto materiali

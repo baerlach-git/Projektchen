@@ -1,15 +1,13 @@
-@typeparam T
-
-    
+   
+@*
 <div class="mb-3 ">
     <label class="form-label" for="@Id">@Label</label>
     <div class="ms-container">
         <input type="text" class="multiselect " id="@Id" name="fruits" placeholder="@Placeholder" optionsLabel="@(string.Join(",", ValueMapping.Keys))" optionsValue="@(string.Join(",", ValueMapping.Values))" value=""/>
     </div>
-</div>
-
+</div>}@
    
-
+*@
 <style>
     * {
         box-sizing: border-box;

@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 
-namespace Frontend.Components.FormComponents;
+namespace Frontend.Components.JsExampleDONTDELETE;
 
 public partial class CustomSelect<T> : ComponentBase where T : notnull
 {
-    
+    [Parameter] public string Test { get; set; }= "a";
     [Parameter]
     public string Id { get; set; } = Guid.NewGuid().ToString();
     [Parameter]
@@ -43,7 +43,7 @@ public partial class CustomSelect<T> : ComponentBase where T : notnull
         try
         {
             
-           await SelectedValuesChanged.InvokeAsync(element);
+            await SelectedValuesChanged.InvokeAsync(element);
             Console.WriteLine(string.Join(",", element));
             //Console.WriteLine(string.Join(",", ValueMapping.Keys));
             //var convertedElement = element.Select(e => ValueMapping[e]).ToList();

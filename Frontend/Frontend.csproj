@@ -25,4 +25,10 @@
       <ProjectReference Include="..\Shared\Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Components\FormComponents\CustomSelectJavaScriptExampleDONTDELETE.cs">
+        <DependentUpon>CustomSelectJavaScriptExampleDONTDELETE.razor</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>
