@@ -6,4 +6,6 @@
 /Frontend/obj
 /Shared/bin
 /Shared/obj
+/PlaywrightTests/bin
+/PlaywrightTests/obj
 /.vs

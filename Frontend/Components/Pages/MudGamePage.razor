@@ -5,6 +5,7 @@
 @using GameServiceProtos
 @inject IHttpContextAccessor HttpContextAccessor
 @inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
 
 <PageTitle>Game Nr. @GameId</PageTitle>
 
@@ -51,7 +52,7 @@ else
     @foreach(var comment in _comments)
     {
         <MudItem xs="12" md="6" xl="4">
-        <MudCommentCard Comment="comment"></MudCommentCard>
+         <MudCommentCard Comment="comment" RefreshData="@RefreshData()" DeleteComment="@DeleteComment"></MudCommentCard>
         </MudItem>
     }
     </MudGrid>
@@ -63,15 +64,15 @@ else
 
 @code {
 
-    [Parameter, SupplyParameterFromQuery(Name="Id")] 
+    [Parameter, SupplyParameterFromQuery(Name = "Id")]
     public required int GameId { get; set; }
 
     List<GameComment>? _comments;
     Game? _gameInfo;
     public int UserRating { get; set; }
-    
 
-    
+
+
     string NewComment { get; set; } = "";
 
     private async Task AddComment()
@@ -83,7 +84,7 @@ else
 
     private async Task RefreshData()
     {
-        var response = await GameClient.GetGameWithCommentsAndRatingAsync(new GameWithCommentsAndRatingRequest { GameId = GameId}, HttpConfig.Headers);
+        var response = await GameClient.GetGameWithCommentsAndRatingAsync(new GameWithCommentsAndRatingRequest { GameId = GameId }, HttpConfig.Headers);
         _comments = response.Comments.ToList();
 
         Console.WriteLine($"userRating {response.UserRating}");
@@ -91,6 +92,7 @@ else
         {
             UserRating = (int)response.UserRating;
         }
+
         _gameInfo = new Game
         {
             Name = response.Name,
@@ -111,14 +113,21 @@ else
         await GameClient.AddRatingAsync(new GameRatingRequest { GameId = GameId, Rating = rating }, HttpConfig.Headers);
         await RefreshData();
     }
-    
+
     private async Task DeleteGame()
     {
-        await GameClient.DeleteGameAsync(new DeleteGameRequest() { GameId = GameId}, HttpConfig.Headers);
+        await GameClient.DeleteGameAsync(new DeleteGameRequest() { GameId = GameId }, HttpConfig.Headers);
         NavigationManager.NavigateTo("/MudGames");
     }
-    
-    
+
+    private async Task DeleteComment(int commentId, int? parentId)
+    {
+        var response = await GameClient.DeleteGameCommentAsync(new DeleteGameCommentRequest { CommentId = commentId, ParentId = parentId }, HttpConfig.Headers);
+        Snackbar.Add(response.Message, response.Success ? Severity.Success : Severity.Error);
+        await RefreshData();
+    }
+
+
     protected override async Task OnInitializedAsync()
     {
         await RefreshData();

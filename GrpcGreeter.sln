@@ -12,9 +12,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "deployment", "deployment", 
 	ProjectSection(SolutionItems) = preProject
 		docker-compose.yml = docker-compose.yml
 		init.sql = init.sql
+		.gitignore = .gitignore
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{7B01F4BF-5D47-46BF-919C-E7F20034C6AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaywrightTests", "PlaywrightTests\PlaywrightTests.csproj", "{FC9BC380-2259-4485-B35F-FB512C882897}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +41,10 @@ Global
 		{7B01F4BF-5D47-46BF-919C-E7F20034C6AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B01F4BF-5D47-46BF-919C-E7F20034C6AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B01F4BF-5D47-46BF-919C-E7F20034C6AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC9BC380-2259-4485-B35F-FB512C882897}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC9BC380-2259-4485-B35F-FB512C882897}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC9BC380-2259-4485-B35F-FB512C882897}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC9BC380-2259-4485-B35F-FB512C882897}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

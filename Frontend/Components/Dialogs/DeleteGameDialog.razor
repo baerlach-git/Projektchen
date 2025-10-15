@@ -29,14 +29,7 @@
     private async Task Submit()
     {
         var response = await DeleteGame;
-        if (response.Success)
-        {
-            Snackbar.Add($"{GameName} deleted", Severity.Success);
-        }
-        else
-        {
-            Snackbar.Add($"{GameName} could not not be deleted", Severity.Error);
-        }
+        Snackbar.Add(response.Message, response.Success ? Severity.Success : Severity.Error);
         MudDialog.Close(DialogResult.Ok(true));
 
 

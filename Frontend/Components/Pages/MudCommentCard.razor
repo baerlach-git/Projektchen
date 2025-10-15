@@ -1,6 +1,8 @@
 @using Frontend.Helpers
 @using GameServiceProtos
 @inject GameService.GameServiceClient GameService
+@inject ISnackbar Snackbar
+
 
 
 <MudCard Outlined="true" Elevation="2" Style="width: 100%; height:fit-content; margin-bottom: 0.5em; margin-top: 0.5em;">
@@ -27,11 +29,7 @@
         
     </MudStack>
     
-    <MudButton Variant="Variant.Text" ButtonType="ButtonType.Button" Color="Color.Warning" OnClick="@DeleteComment">Delete</MudButton>
-    @if (_responseText != null)
-    {
-        <MudText @bind="@_responseText"/>
-    }
+    <MudButton Variant="Variant.Text" ButtonType="ButtonType.Button" Color="Color.Warning" OnClick="@(async() => await DeleteComment(Comment.Id, Comment.ParentId))">Delete</MudButton>
 </MudCardActions>
 
 </MudCard>
@@ -41,9 +39,12 @@
 @code {
     [Parameter]
     public required GameComment Comment { get; set; }
+    [Parameter]
+    public required Task RefreshData { get; set; }
+    [Parameter]
+    public required Func<int, int?, Task> DeleteComment { get; set; }
     bool _disabled  = true;
     string _originalComment = null!;
-    string? _responseText;
     
     
     private void ToggleEdit()
@@ -59,17 +60,17 @@
 
     private async Task SaveEdit()
     {
-        var updateResponse = await GameService.UpdateGameCommentAsync(new UpdateGameCommentRequest { CommentId = Comment.Id, Content = Comment.Content }, HttpConfig.Headers);
-
-        _responseText = updateResponse.Message;
+        var response = await GameService.UpdateGameCommentAsync(new UpdateGameCommentRequest { CommentId = Comment.Id, Content = Comment.Content }, HttpConfig.Headers);
+        Snackbar.Add(response.Message, response.Success ? Severity.Success : Severity.Error);
+        await RefreshData;
     }
     
-    private async Task DeleteComment()
-    {
-        var deleteResponse = await GameService.DeleteGameCommentAsync(new DeleteGameCommentRequest { CommentId = Comment.Id, ParentId = Comment.ParentId }, HttpConfig.Headers);
-        
-        _responseText = deleteResponse.Message;
-    }
+    //private async Task DeleteComment()
+    //{
+    //    var response = await GameService.DeleteGameCommentAsync(new DeleteGameCommentRequest { CommentId = Comment.Id, ParentId = Comment.ParentId }, HttpConfig.Headers);
+    //    Snackbar.Add(response.Message, response.Success ? Severity.Success : Severity.Error);
+    //    await RefreshData;
+    //}
 
     protected override void OnInitialized()
     {
